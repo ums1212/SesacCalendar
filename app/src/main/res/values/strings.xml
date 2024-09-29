@@ -2,4 +2,25 @@
     <string name="app_name">SesacScheduler</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <string name="title">제목</string>
+    <string name="date">날짜</string>
+    <string name="time">시간</string>
+    <string name="repeat">반복</string>
+    <string name="place">장소</string>
+    <string name="appointment_alarm">약속시간 알림</string>
+    <string name="color">색상</string>
+
+    <string name="none">없음</string>
+    <string name="everyday">매일</string>
+    <string name="everyweek">매주</string>
+    <string name="everymonths">매월</string>
+
+    <string name="start_date">시작날짜</string>
+    <string name="last_date">마지막 날짜</string>
+
+
+
+
 </resources>
