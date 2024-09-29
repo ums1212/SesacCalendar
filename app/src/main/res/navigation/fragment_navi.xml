@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_navi"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.sesac.sesacscheduler.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_scheduleListFragment"
+            app:destination="@id/scheduleListFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_addSchedulerFragment"
+            app:destination="@id/addSchedulerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/scheduleListFragment"
+        android:name="com.sesac.sesacscheduler.ScheduleListFragment"
+        android:label="fragment_schedule_list"
+        tools:layout="@layout/fragment_schedule_list" >
+        <action
+            android:id="@+id/action_scheduleListFragment_to_addSchedulerFragment"
+            app:destination="@id/addSchedulerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addSchedulerFragment"
+        android:name="com.sesac.sesacscheduler.AddSchedulerFragment"
+        android:label="fragment_add_scheduler"
+        tools:layout="@layout/fragment_add_scheduler" >
+        <action
+            android:id="@+id/action_addSchedulerFragment_to_scheduleListFragment"
+            app:destination="@id/scheduleListFragment" />
+        <action
+            android:id="@+id/action_addSchedulerFragment_to_searchLocationFragment"
+            app:destination="@id/searchLocationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchLocationFragment"
+        android:name="com.sesac.sesacscheduler.SearchLocationFragment"
+        android:label="fragment_search_location"
+        tools:layout="@layout/fragment_search_location" >
+        <action
+            android:id="@+id/action_searchLocationFragment_to_addSchedulerFragment"
+            app:destination="@id/addSchedulerFragment" />
+    </fragment>
+</navigation>
