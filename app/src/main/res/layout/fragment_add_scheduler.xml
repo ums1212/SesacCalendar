@@ -40,73 +40,39 @@
         android:layout_height="wrap_content"
         android:text="@string/title"
         android:textSize="@dimen/text_body"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="gu"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="@dimen/text_margin" />
+        app:layout_constraintVertical_bias="0.046" />
+
     <View
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title"
-        android:layout_marginTop="@dimen/text_margin"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <LinearLayout
-        android:id="@+id/ll_date"
-        android:layout_width="@dimen/zero"
-        android:layout_height="@dimen/zero"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="@+id/guideline_end"
-        app:layout_constraintStart_toStartOf="@+id/guideline_start"
-        app:layout_constraintTop_toBottomOf="@+id/view">
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tv_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/text_margin"
-            android:layout_marginBottom="@dimen/text_margin"
-            android:text="@string/date" />
-        <com.google.android.material.textview.MaterialTextView
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:text="@string/date"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.481" />
+
+    <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_start_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/text_margin"
-            android:text="@string/start_date"/>
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tv_last_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/text_margin"
-            android:text="@string/last_date"/>
-    </LinearLayout>
-
-
-
-<!--
-    <androidx.constraintlayout.helper.widget.Flow
-        android:id="@+id/flow"
-        android:layout_width="@dimen/zero"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="text3,text4"
-        app:flow_direction="start_to_end"
-        app:flow_maxElementsWrap="4"
-        app:layout_constraintTop_toBottomOf="@id/ll_date"
-        app:layout_constraintEnd_toEndOf="@+id/guideline_end"
-        app:layout_constraintStart_toStartOf="@+id/guideline_start" />
-    <TextView
-        android:id="@+id/text3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="항목 3"
-        app:layout_constraintStart_toStartOf="@id/guideline3"/>
-    <TextView
-        android:id="@+id/text4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="항목 4"/>
--->
-
-
-
+            android:text="@string/start_date"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline3"
+            app:layout_constraintTop_toTopOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
