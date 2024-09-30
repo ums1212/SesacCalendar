@@ -11,14 +11,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="@fraction/guideline_start"/>
+        app:layout_constraintGuide_percent="@fraction/guideline_start" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="@fraction/guideline_end"/>
+        app:layout_constraintGuide_percent="@fraction/guideline_end" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
@@ -40,39 +40,344 @@
         android:layout_height="wrap_content"
         android:text="@string/title"
         android:textSize="@dimen/text_body"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="gu"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.046" />
+        android:layout_marginTop="@dimen/text_margin"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
-        android:id="@+id/view"
+        android:id="@+id/view_title"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/view_height"
         android:background="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        android:layout_marginTop="@dimen/text_margin"/>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tv_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
         android:text="@string/date"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.481" />
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/view_title"
+        android:layout_marginTop="@dimen/text_margin"/>
 
     <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tv_start_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/start_date"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="parent"/>
+        android:id="@+id/tv_start_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_date"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="@id/view_title"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_last_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/last_date"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@id/view_title"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <CalendarView
+        android:id="@+id/cv"
+        android:layout_width="@dimen/calendar_width"
+        android:layout_height="@dimen/calendar_height"
+        android:visibility="@string/init_visibility"
+        android:layout_marginTop="@dimen/text_margin"
+        app:layout_constraintEnd_toEndOf="@+id/guideline_end"
+        app:layout_constraintStart_toStartOf="@+id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/tv_date" />
+    <View
+        android:id="@+id/view_date"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/view_height"
+        android:background="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/cv"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/time"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/view_date"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_time"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="@id/view_date"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_last_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/last_time"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@id/view_date"
+        android:layout_marginTop="@dimen/text_margin"/>
+    
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="@dimen/chronometer_width"
+        android:layout_height="@dimen/chronometer_height"
+        android:visibility="@string/init_visibility"
+        android:layout_marginTop="@dimen/text_margin"
+        app:layout_constraintEnd_toEndOf="@+id/guideline_end"
+        app:layout_constraintStart_toStartOf="@+id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/tv_time"/>
+
+    <View
+        android:id="@+id/view_time"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/view_height"
+        android:background="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/chronometer"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_repeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/repeat"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/view_time"
+        android:layout_marginTop="@dimen/text_margin"/>
+    
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinner_repeat"
+        android:layout_width="@dimen/zero"
+        android:layout_height="wrap_content"
+        android:entries="@array/repeat_choice"
+        android:spinnerMode="dropdown"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="@id/guideline_end"
+        app:layout_constraintTop_toTopOf="@id/view_time"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <View
+        android:id="@+id/view_repeat"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/view_height"
+        android:background="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_repeat"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_place"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/place"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/view_repeat"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_appointment_place"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/appointment_place"
+        android:textColor="@color/sub_gray"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="@id/view_repeat"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_place"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_place_24"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_end"
+        app:layout_constraintTop_toBottomOf="@+id/view_repeat"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_place"
+        android:layout_width="@dimen/calendar_width"
+        android:layout_height="@dimen/calendar_height"
+        android:src="@drawable/ic_launcher_foreground"
+        android:visibility="@string/init_visibility"
+        app:layout_constraintEnd_toEndOf="@+id/guideline_end"
+        app:layout_constraintTop_toBottomOf="@id/tv_place"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <View
+        android:id="@+id/view_place"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/view_height"
+        android:background="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/iv_place"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/v_appointment_alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/appointment_alarm"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/view_place"
+        android:layout_marginTop="@dimen/text_margin" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_appointment_alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_end"
+        app:layout_constraintTop_toBottomOf="@+id/view_place"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_alarm_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/alarm_time"
+        android:textSize="@dimen/text_body"
+        android:textColor="@color/sub_gray"
+        android:visibility="@string/init_visibility"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/v_appointment_alarm"
+        android:layout_marginTop="@dimen/text_margin"
+        android:layout_marginStart="@dimen/text_margin"/>
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinner_alarm"
+        android:layout_width="@dimen/zero"
+        android:layout_height="wrap_content"
+        android:entries="@array/alarm_choice"
+        android:spinnerMode="dropdown"
+        android:visibility="@string/init_visibility"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="@id/guideline_end"
+        app:layout_constraintTop_toBottomOf="@id/v_appointment_alarm"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <View
+        android:id="@+id/view_alarm"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/view_height"
+        android:background="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_alarm"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/color"
+        android:textSize="@dimen/text_body"
+        app:layout_constraintStart_toStartOf="@id/guideline_start"
+        app:layout_constraintTop_toBottomOf="@id/view_alarm"
+        android:layout_marginTop="@dimen/text_margin" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="@color/sub_gray"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_end"
+        app:layout_constraintTop_toBottomOf="@+id/view_alarm"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:id="@+id/flow_color"
+        android:layout_width="@dimen/zero"
+        android:layout_height="@dimen/zero"
+        app:flow_maxElementsWrap="5"
+        app:flow_wrapMode="aligned"
+        android:visibility="@string/init_visibility"
+        app:constraint_referenced_ids="icon_color_1,icon_color_2,icon_color_3,icon_color_4,icon_color_5,icon_color_6,icon_color_7,icon_color_8,icon_color_9,icon_color_10"
+        app:layout_constraintStart_toStartOf="@+id/guideline_start"
+        app:layout_constraintEnd_toEndOf="@id/guideline_end"
+        app:layout_constraintTop_toBottomOf="@+id/tv_color"
+        android:layout_marginTop="@dimen/text_margin"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/icon_color_10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_circle_24"
+        android:tint="#664646"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
