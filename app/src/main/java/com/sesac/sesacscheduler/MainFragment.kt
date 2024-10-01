@@ -2,10 +2,23 @@ package com.sesac.sesacscheduler
 
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.view.children
 import androidx.navigation.fragment.findNavController
+import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.CalendarMonth
+import com.kizitonwose.calendar.core.DayPosition
+import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
+import com.kizitonwose.calendar.view.MonthDayBinder
+import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
-import java.util.Calendar
-import java.util.Date
+import java.time.DayOfWeek
+import java.time.LocalDateTime
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
 
 class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate) {
 
@@ -17,24 +30,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         super.onViewCreated(view, savedInstanceState)
         
         // 초기 editTextView 힌트 설정
-        Calendar.getInstance().apply {
-            time = Date(binding.calendarView.date)
-            binding.editTextSchedule.hint = "${get(Calendar.MONTH)+1}월 ${get(Calendar.DAY_OF_MONTH)}일에 일정 추가"
-        }
-        
-        // 캘린더의 날짜 변경 시
-        binding.calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
-            if(year+month+dayOfMonth == selectedYear+selectedMonth+selectedDate){
-                // 날짜를 한번 더 클릭하면 일정 리스트로 이동
-                findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment)
-            }else{
-                // 날짜가 변경될 때마다 editText의 hint내용 변경
-                binding.editTextSchedule.hint = "${month+1}월 ${dayOfMonth}일에 일정 추가"
-                selectedYear = year
-                selectedMonth = month
-                selectedDate = dayOfMonth
-            }
-        }
+        binding.editTextSchedule.hint = "${LocalDateTime.now().monthValue}월 ${LocalDateTime.now().dayOfMonth}일에 일정 추가"
 
         // 일정 추가 버튼
         binding.buttonAdd.setOnClickListener {
@@ -45,6 +41,93 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                 // 일정 텍스트를 직접 입력했을 때 자동으로 일정 추가
             }
         }
+        settingKizitonwoseCalendar()
+    }
+
+    private fun settingKizitonwoseCalendar(){
+        // kizitonwose 라이브러리 사용
+        with(binding.calendarView){
+            dayBinder = object : MonthDayBinder<DayViewContainer> {
+                // Called only when a new container is needed.
+                override fun create(view: View) = DayViewContainer(view){ day ->
+                    if(day.date.year+day.date.monthValue+day.date.dayOfMonth == selectedYear+selectedMonth+selectedDate){
+                        // 날짜를 한번 더 클릭하면 일정 리스트로 이동
+                        findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment)
+                    }else{
+                        // 날짜가 변경될 때마다 editText의 hint내용 변경
+                        selectedYear = day.date.year
+                        selectedMonth = day.date.monthValue
+                        selectedDate = day.date.dayOfMonth
+                        binding.editTextSchedule.hint = "${day.date.monthValue}월 ${day.date.dayOfMonth}일에 일정 추가"
+
+                    }
+                }
+
+                // Called every time we need to reuse a container.
+                override fun bind(container: DayViewContainer, data: CalendarDay) {
+                    container.day = data
+                    container.textView.text = data.date.dayOfMonth.toString()
+                    container.textView.setTextColor(
+                        resources.getColor(
+                            if(data.position==DayPosition.MonthDate){
+                                // 평일과 주말 색 셋팅
+                                when(data.date.dayOfWeek){
+                                    DayOfWeek.SUNDAY -> R.color.sc_red
+                                    DayOfWeek.SATURDAY ->R.color.sc_blue
+                                    else -> R.color.white
+                                }
+                            }else{
+                                // 해당 월의 날짜가 아닌 경우에는 회색
+                                R.color.sc_gray
+                            },
+                            null
+                        )
+                    )
+                }
+            }
+            val currentMonth = YearMonth.now()
+            val startMonth = currentMonth.minusMonths(100) // Adjust as needed
+            val endMonth = currentMonth.plusMonths(100) // Adjust as needed
+            val firstDayOfWeek = firstDayOfWeekFromLocale() // Available from the library
+            val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.SUNDAY)
+            setup(startMonth, endMonth, firstDayOfWeek)
+            scrollToMonth(currentMonth)
+
+            monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
+                override fun create(view: View) = MonthViewContainer(view)
+                override fun bind(container: MonthViewContainer, data: CalendarMonth) {
+                    // Remember that the header is reused so this will be called for each month.
+                    // However, the first day of the week will not change so no need to bind
+                    // the same view every time it is reused.
+                    if (container.titlesContainer.tag == null) {
+                        container.titlesContainer.tag = data.yearMonth
+                        // 월 셋팅
+                        (container.titlesContainer.children.first() as TextView).text = data.yearMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                        // 요일 셋팅
+                        (container.titlesContainer.children.last() as LinearLayout)
+                            .children.map { it as TextView }
+                            .forEachIndexed { index, textView ->
+                                val dayOfWeek = daysOfWeek[index]
+                                val title = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                                textView.text = title
+                                when(index){
+                                    0 -> textView.setTextColor(resources.getColor(R.color.sc_red, null))
+                                    6 -> textView.setTextColor(resources.getColor(R.color.sc_blue, null))
+                                    else -> textView.setTextColor(resources.getColor(R.color.white, null))
+                                }
+                                // In the code above, we use the same `daysOfWeek` list
+                                // that was created when we set up the calendar.
+                                // However, we can also get the `daysOfWeek` list from the month data:
+                                // val daysOfWeek = data.weekDays.first().map { it.date.dayOfWeek }
+                                // Alternatively, you can get the value for this specific index:
+                                // val dayOfWeek = data.weekDays.first()[index].date.dayOfWeek
+                            }
+                    }
+                }
+            }
+        }
+
+
     }
 
 }

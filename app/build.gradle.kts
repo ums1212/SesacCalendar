@@ -39,6 +39,9 @@ android {
 }
 
 dependencies {
+    // The view calendar library for Android
+    implementation("com.kizitonwose.calendar:view:2.6.0")
+
     val nav_version = "2.8.0"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
