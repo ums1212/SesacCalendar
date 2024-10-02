@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="zero">0dp</dimen>
+    <dimen name="guideline_margin">25dp</dimen>
+    <dimen name="text_margin">20dp</dimen>
+
+    <dimen name="text_header">25sp</dimen>
+    <dimen name="text_body">15sp</dimen>
+    <dimen name="text_caption">12sp</dimen>
+
+    <dimen name="calendar_width">250dp</dimen>
+    <dimen name="calendar_height">160dp</dimen>
+    <dimen name="chronometer_width">250dp</dimen>
+    <dimen name="chronometer_height">160dp</dimen>
+
+    <dimen name="view_height">1dp</dimen>
+</resources>
