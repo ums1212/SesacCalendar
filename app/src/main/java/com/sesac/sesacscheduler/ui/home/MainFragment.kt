@@ -27,6 +27,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
     private var selectedYear = 0
     private var selectedMonth = 0
     private var selectedDate = 0
+    private var selectedDayView: LinearLayout? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,12 +57,14 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                         // 날짜를 한번 더 클릭하면 일정 리스트로 이동
                         findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment)
                     }else{
+                        if(selectedDayView!=null) selectedDayView!!.background = null
+                        selectedDayView = view as LinearLayout
                         // 날짜가 변경될 때마다 editText의 hint내용 변경
                         selectedYear = day.date.year
                         selectedMonth = day.date.monthValue
                         selectedDate = day.date.dayOfMonth
                         binding.editTextSchedule.hint = "${day.date.monthValue}월 ${day.date.dayOfMonth}일에 일정 추가"
-
+                        selectedDayView?.background = resources.getDrawable(R.drawable.calendar_day_layout_selected, null)
                     }
                 }
 
@@ -80,7 +83,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                                 }
                             }else{
                                 // 해당 월의 날짜가 아닌 경우에는 회색
-                                R.color.sc_gray
+                                R.color.sc_black
                             },
                             null
                         )
@@ -104,7 +107,8 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                     if (container.titlesContainer.tag == null) {
                         container.titlesContainer.tag = data.yearMonth
                         // 월 셋팅
-                        (container.titlesContainer.children.first() as TextView).text = data.yearMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                        (container.titlesContainer.children.first() as TextView).text =
+                            data.yearMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
                         // 요일 셋팅
                         (container.titlesContainer.children.last() as LinearLayout)
                             .children.map { it as TextView }
@@ -128,8 +132,5 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                 }
             }
         }
-
-
     }
-
 }
