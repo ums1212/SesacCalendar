@@ -1,4 +1,4 @@
-package com.sesac.sesacscheduler
+package com.sesac.sesacscheduler.ui.common
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,8 +25,4 @@ abstract class BaseFragment<VB : ViewBinding>(
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }

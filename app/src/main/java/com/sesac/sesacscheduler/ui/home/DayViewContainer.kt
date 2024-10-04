@@ -1,7 +1,6 @@
-package com.sesac.sesacscheduler
+package com.sesac.sesacscheduler.ui.home
 
 import android.view.View
-import android.widget.TextView
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.view.ViewContainer
 import com.sesac.sesacscheduler.databinding.CalendarDayLayoutBinding

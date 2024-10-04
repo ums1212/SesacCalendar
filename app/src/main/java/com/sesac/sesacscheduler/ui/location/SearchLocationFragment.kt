@@ -1,10 +1,12 @@
-package com.sesac.sesacscheduler
+package com.sesac.sesacscheduler.ui.location
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.databinding.FragmentSearchLocationBinding
+import com.sesac.sesacscheduler.ui.common.BaseFragment
 
 class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(FragmentSearchLocationBinding::inflate) {
 

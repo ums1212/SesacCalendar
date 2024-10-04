@@ -1,4 +1,4 @@
-package com.sesac.sesacscheduler
+package com.sesac.sesacscheduler.ui.home
 
 import android.view.View
 import android.view.ViewGroup
