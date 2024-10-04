@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.sesac.sesacscheduler.MainFragment"
+        android:name="com.sesac.sesacscheduler.ui.home.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/scheduleListFragment"
-        android:name="com.sesac.sesacscheduler.ScheduleListFragment"
+        android:name="com.sesac.sesacscheduler.ui.schedulelist.ScheduleListFragment"
         android:label="fragment_schedule_list"
         tools:layout="@layout/fragment_schedule_list" >
         <action
@@ -28,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/addSchedulerFragment"
-        android:name="com.sesac.sesacscheduler.AddSchedulerFragment"
+        android:name="com.sesac.sesacscheduler.ui.scheduleadd.AddSchedulerFragment"
         android:label="fragment_add_scheduler"
         tools:layout="@layout/fragment_add_scheduler" >
         <action
@@ -40,7 +40,7 @@
     </fragment>
     <fragment
         android:id="@+id/searchLocationFragment"
-        android:name="com.sesac.sesacscheduler.SearchLocationFragment"
+        android:name="com.sesac.sesacscheduler.ui.location.SearchLocationFragment"
         android:label="fragment_search_location"
         tools:layout="@layout/fragment_search_location" >
         <action

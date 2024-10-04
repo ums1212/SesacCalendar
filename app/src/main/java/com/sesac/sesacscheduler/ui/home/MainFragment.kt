@@ -1,4 +1,4 @@
-package com.sesac.sesacscheduler
+package com.sesac.sesacscheduler.ui.home
 
 import android.os.Bundle
 import android.view.View
@@ -13,7 +13,9 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
+import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
+import com.sesac.sesacscheduler.ui.common.BaseFragment
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -73,7 +75,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                                 // 평일과 주말 색 셋팅
                                 when(data.date.dayOfWeek){
                                     DayOfWeek.SUNDAY -> R.color.sc_red
-                                    DayOfWeek.SATURDAY ->R.color.sc_blue
+                                    DayOfWeek.SATURDAY -> R.color.sc_blue
                                     else -> R.color.white
                                 }
                             }else{
