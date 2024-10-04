@@ -10,19 +10,9 @@ import androidx.navigation.fragment.findNavController
 import com.sesac.sesacscheduler.databinding.FragmentScheduleListBinding
 
 class ScheduleListFragment : BaseFragment<FragmentScheduleListBinding>(FragmentScheduleListBinding::inflate) {
-        override lateinit var binding: FragmentScheduleListBinding
-        override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-        savedInstanceState: Bundle?
-        ): View? {
-            binding = FragmentScheduleListBinding.inflate(inflater, container, false)
-            return binding.root
-        }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-
             // 데이터 준비 (예시)
             val scheduleList = mutableListOf("일정1", "일정2", "일정3")
 
