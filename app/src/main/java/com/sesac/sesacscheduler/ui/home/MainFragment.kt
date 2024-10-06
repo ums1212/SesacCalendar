@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import reactivecircus.flowbinding.android.view.clicks
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -28,9 +29,7 @@ import java.util.Locale
 
 class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate) {
 
-    private var selectedYear = 0
-    private var selectedMonth = 0
-    private var selectedDate = 0
+    private var selectedDate: LocalDate = LocalDate.now()
     private var selectedDayView: LinearLayout? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,18 +58,18 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         with(binding.calendarView){
             dayBinder = object : MonthDayBinder<DayViewContainer> {
                 // Called only when a new container is needed.
-                override fun create(view: View) = DayViewContainer(view){ day ->
-                    if(day.date.year+day.date.monthValue+day.date.dayOfMonth == selectedYear+selectedMonth+selectedDate){
+                override fun create(view: View) = DayViewContainer(view, viewLifecycleOwner.lifecycleScope){ day ->
+                    notifyDateChanged(day.date)
+                    if(day.date == selectedDate){
                         // 날짜를 한번 더 클릭하면 일정 리스트로 이동
                         findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment)
                     }else{
-                        if(selectedDayView!=null) selectedDayView!!.background = null
+                        if(selectedDayView!=null) selectedDayView?.background = null
                         selectedDayView = view as LinearLayout
+                        selectedDate = day.date
                         // 날짜가 변경될 때마다 editText의 hint내용 변경
-                        selectedYear = day.date.year
-                        selectedMonth = day.date.monthValue
-                        selectedDate = day.date.dayOfMonth
                         binding.editTextSchedule.hint = "${day.date.monthValue}월 ${day.date.dayOfMonth}일에 일정 추가"
+                        // 선택 날짜 테두리 표시
                         selectedDayView?.background = resources.getDrawable(R.drawable.calendar_day_layout_selected, null)
                     }
                 }
