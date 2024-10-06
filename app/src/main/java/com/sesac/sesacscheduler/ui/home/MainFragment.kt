@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
@@ -16,6 +17,9 @@ import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
 import com.sesac.sesacscheduler.ui.common.BaseFragment
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import reactivecircus.flowbinding.android.view.clicks
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -35,15 +39,18 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         // 초기 editTextView 힌트 설정
         binding.editTextSchedule.hint = "${LocalDateTime.now().monthValue}월 ${LocalDateTime.now().dayOfMonth}일에 일정 추가"
 
-        // 일정 추가 버튼
-        binding.buttonAdd.setOnClickListener {
-            if(binding.editTextSchedule.text.toString()==""){
-                // 일정 텍스트를 직접 입력하지 않고 추가하려고 할때
-                findNavController().navigate(R.id.action_mainFragment_to_addSchedulerFragment)
-            }else{
-                // 일정 텍스트를 직접 입력했을 때 자동으로 일정 추가
-            }
-        }
+        // 일정 추가 버튼 FlowBinding으로 UI이벤트 등록
+        binding.buttonAdd.clicks()
+            .onEach {
+                if(binding.editTextSchedule.text.toString()==""){
+                    // 일정 텍스트를 직접 입력하지 않고 추가하려고 할때
+                    findNavController().navigate(R.id.action_mainFragment_to_addSchedulerFragment)
+                }else{
+                    // 일정 텍스트를 직접 입력했을 때 자동으로 일정 추가
+                }
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
+
+        // 커스텀 캘린더 셋팅
         settingKizitonwoseCalendar()
     }
 
