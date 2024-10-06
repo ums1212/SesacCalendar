@@ -16,7 +16,6 @@ class ScheduleInfo {
     var lastDate: String = ""
     var startTime: String = ""
     var endTime: String = ""
-    var repeat: Boolean = false
     var repeatDays: Int = 0
     var appointmentPlace: String = ""
     var longitude: Double = 0.0
@@ -33,7 +32,6 @@ class ScheduleInfo {
         lastDate: String,
         startTime: String,
         endTime: String,
-        repeat: Boolean,
         repeatDays: Int,
         appointmentPlace: String,
         longitude: Double,
@@ -47,7 +45,6 @@ class ScheduleInfo {
         this.lastDate = lastDate
         this.startTime = startTime
         this.endTime = endTime
-        this.repeat = repeat
         this.repeatDays = repeatDays
         this.appointmentPlace = appointmentPlace
         this.longitude = longitude
