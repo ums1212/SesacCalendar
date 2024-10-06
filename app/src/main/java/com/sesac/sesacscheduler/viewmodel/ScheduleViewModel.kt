@@ -36,14 +36,14 @@ class ScheduleViewModel : ViewModel() {
                         is ScheduleResult.Success -> {
                             viewModelScope.launch {
                                 toastShort("스케줄 저장")
+                                logE("스케줄 저장(성공)",it.toString())
                             }
+                            findAllSchedule()
                         }
                         is ScheduleResult.Loading -> {
-                            toastShort("로딩...")
                             logE("스케줄 저장(로딩)",it.toString())
                         }
                         is ScheduleResult.RoomDBError -> {
-                            toastShort("데이터베이스 오류")
                             logE("스케줄 저장(DB에러)",it.exception.toString())
                         }
                         else -> {
@@ -69,6 +69,13 @@ class ScheduleViewModel : ViewModel() {
                 repository.deleteSchedule(id).collectLatest {
                     //_removeSchedule.value = it
                 }
+            }
+        }
+    }
+    fun findAllSchedule() = viewModelScope.launch {
+        withContext(ioDispatchers.coroutineContext) {
+            repository.findAllSchedule().collectLatest {
+                _scheduleList.value = it
             }
         }
     }

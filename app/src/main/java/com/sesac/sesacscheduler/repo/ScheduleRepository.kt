@@ -3,6 +3,7 @@ package com.sesac.sesacscheduler.repo
 import com.sesac.sesacscheduler.common.MOCK_DELAY_TIME
 import com.sesac.sesacscheduler.common.ScheduleResult
 import com.sesac.sesacscheduler.common.SchedulerApplication
+import com.sesac.sesacscheduler.common.logE
 import com.sesac.sesacscheduler.dao.ScheduleDAO
 import com.sesac.sesacscheduler.database.ScheduleRoomDatabase
 import com.sesac.sesacscheduler.model.ScheduleInfo
@@ -54,5 +55,11 @@ class ScheduleRepository {
         emit(ScheduleResult.Loading)
         delay(MOCK_DELAY_TIME)
         emit(ScheduleResult.Success(scheduleDAO.getScheduleMonth(month)))
+    }.catch { exception -> emit(ScheduleResult.NetworkError(exception)) }
+
+    fun findAllSchedule() = flow {
+        emit(ScheduleResult.Loading)
+        delay(MOCK_DELAY_TIME)
+        emit(ScheduleResult.Success(scheduleDAO.findAllSchedule()))
     }.catch { exception -> emit(ScheduleResult.NetworkError(exception)) }
 }

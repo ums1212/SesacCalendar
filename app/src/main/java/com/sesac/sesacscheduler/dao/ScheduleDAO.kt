@@ -4,12 +4,15 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
+import com.sesac.sesacscheduler.common.logE
 import com.sesac.sesacscheduler.model.ScheduleInfo
 
 @Dao
 interface ScheduleDAO {
 
+    @Transaction
     @Insert
     fun insertSchedule(schedule: ScheduleInfo)
 
@@ -30,4 +33,7 @@ interface ScheduleDAO {
     //해당 월 스케줄 가져오기
     @Query("SELECT * FROM schedule WHERE startDate LIKE :month || '%'")
     fun getScheduleMonth(month: String): MutableList<ScheduleInfo>
+
+    @Query("SELECT * FROM schedule")
+    fun findAllSchedule(): MutableList<ScheduleInfo>
 }
