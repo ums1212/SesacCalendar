@@ -40,8 +40,9 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="@fraction/guideline_third" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_title"
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/et_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/title"
