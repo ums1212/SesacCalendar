@@ -16,7 +16,7 @@ interface ScheduleDAO {
     @Update
     fun updateSchedule(schedule: ScheduleInfo)
 
-    @Delete
+    @Query("DELETE FROM schedule WHERE scheduleId = :id")
     fun deleteSchedule(id: Int)
 
     //id값으로 스케줄 가져오기(수정페이지)
