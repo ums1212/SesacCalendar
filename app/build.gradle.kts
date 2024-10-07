@@ -59,4 +59,5 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.bundles.flowbindings)
+    implementation(libs.bundles.retrofits)
 }

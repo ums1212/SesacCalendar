@@ -1,6 +1,7 @@
 package com.sesac.sesacscheduler.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,9 +17,11 @@ import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
+import com.sesac.sesacscheduler.retrofit.RetrofitManager
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import reactivecircus.flowbinding.android.view.clicks
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -34,6 +37,35 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 날씨 api 테스트
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = RetrofitManager.WeatherService.weatherService.getWeatherForecast(
+                nx = 55,
+                ny = 127
+            )
+            result.let {
+                if(it.isSuccessful){
+                    val firstItemSKY = it.body()?.response?.body?.items?.item?.filter { item ->
+                        item.category == "SKY"
+                    }?.sortedBy { item ->
+                        item.fcstTime.toInt()
+                    }?.first()
+                    val firstItemT1H = it.body()?.response?.body?.items?.item?.filter { item ->
+                        item.category == "T1H"
+                    }?.sortedBy { item ->
+                        item.fcstTime.toInt()
+                    }?.first()
+
+                    // 하늘상태(SKY) 코드 : 맑음(1), 구름많음(3), 흐림(4)
+                    Log.d("test1234", "SKY : ${firstItemSKY?.fcstValue}")
+                    Log.d("test1234", "T1H : ${firstItemT1H?.fcstValue}")
+                }else{
+                    Log.e("test1234", "실패 ${it.code()}")
+                }
+            }
+        }
+
         
         // 초기 editTextView 힌트 설정
         binding.editTextSchedule.hint = "${LocalDateTime.now().monthValue}월 ${LocalDateTime.now().dayOfMonth}일에 일정 추가"
