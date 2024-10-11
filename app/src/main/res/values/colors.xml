@@ -13,5 +13,6 @@
     <color name="sc_lightpurple">#FF9F81F7</color>
     <color name="sc_redviolet">#FFF78181</color>
     <color name="sc_gray">#FFBDBDBD</color>
+    <color name="sc_pink">#D04747</color>
     <color name="sub_gray">#FFB0B0B0</color>
 </resources>

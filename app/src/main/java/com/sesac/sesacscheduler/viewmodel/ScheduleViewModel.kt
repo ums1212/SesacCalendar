@@ -20,56 +20,75 @@ class ScheduleViewModel : ViewModel() {
     private val repository: ScheduleRepository by lazy {
         ScheduleRepository()
     }
-    private var _scheduleList = MutableStateFlow<ScheduleResult<MutableList<ScheduleInfo>>>(ScheduleResult.NoConstructor)
+    private var _scheduleList =
+        MutableStateFlow<ScheduleResult<MutableList<ScheduleInfo>>>(ScheduleResult.NoConstructor)
     val scheduleList get() = _scheduleList.asStateFlow()
 
-    private var _removeSchedule = MutableStateFlow<ScheduleResult<Int>>(ScheduleResult.NoConstructor)
+    private var _schedule =
+        MutableStateFlow<ScheduleResult<ScheduleInfo>>(ScheduleResult.NoConstructor)
+    val schedule get() = _schedule.asStateFlow()
+
+    private var _removeSchedule =
+        MutableStateFlow<ScheduleResult<Int>>(ScheduleResult.NoConstructor)
     val removeSchedule get() = _removeSchedule.asStateFlow()
 
     private val ioDispatchers = CoroutineScope(Dispatchers.IO)
 
-    fun insertSchedule(newSchedule: ScheduleInfo){
+    fun insertSchedule(newSchedule: ScheduleInfo) {
         viewModelScope.launch {
-            withContext(ioDispatchers.coroutineContext){
-                repository.insertSchedule(newSchedule).collectLatest{
-                    when(it){
+            withContext(ioDispatchers.coroutineContext) {
+                repository.insertSchedule(newSchedule).collectLatest {
+                    when (it) {
                         is ScheduleResult.Success -> {
                             viewModelScope.launch {
                                 toastShort("스케줄 저장")
+                                logE("스케줄 저장(성공)", it.toString())
                             }
                         }
+
                         is ScheduleResult.Loading -> {
-                            toastShort("로딩...")
-                            logE("스케줄 저장(로딩)",it.toString())
+                            logE("스케줄 저장(로딩)", it.toString())
                         }
+
                         is ScheduleResult.RoomDBError -> {
-                            toastShort("데이터베이스 오류")
-                            logE("스케줄 저장(DB에러)",it.exception.toString())
+                            logE("스케줄 저장(DB에러)", it.exception.toString())
                         }
+
                         else -> {
-                            logE("스케줄 저장(너가 왜뜨니?)",it.toString())
+                            logE("스케줄 저장(너가 왜뜨니?)", it.toString())
                         }
                     }
                 }
             }
         }
     }
-    fun getSchedule(id: Int){
+
+    fun getSchedule(id: Int) {
         viewModelScope.launch {
             withContext(ioDispatchers.coroutineContext) {
                 repository.getSchedule(id).collectLatest {
-                    // _scheduleList.value = it
+                    _schedule.value = it
                 }
             }
         }
     }
+
     fun deleteSchedule(id: Int) {
         viewModelScope.launch {
             withContext(ioDispatchers.coroutineContext) {
-                repository.deleteSchedule(id).collectLatest {
-                    //_removeSchedule.value = it
-                }
+                repository.deleteSchedule(id)/*.collectLatest {
+                    _schedule.value = it
+            }*/
             }
         }
     }
+        fun findAllSchedule() = viewModelScope.launch {
+            withContext(ioDispatchers.coroutineContext) {
+                repository.findAllSchedule().collectLatest {
+                    _scheduleList.value = it
+                }
+            }
+        }
+
+
 }

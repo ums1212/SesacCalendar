@@ -37,6 +37,9 @@
         <action
             android:id="@+id/action_addSchedulerFragment_to_searchLocationFragment"
             app:destination="@id/searchLocationFragment" />
+        <action
+            android:id="@+id/action_addSchedulerFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchLocationFragment"
