@@ -16,6 +16,7 @@ roomRuntime = "2.6.1"
 ksp = "1.9.24-1.0.20"
 rxbinding = "4.0.0"
 view = "2.6.0"
+flowBinding = "1.2.0"
 
 
 [libraries]
@@ -35,9 +36,29 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 rxbinding = { module = "com.jakewharton.rxbinding4:rxbinding", version.ref = "rxbinding" }
 view = { module = "com.kizitonwose.calendar:view", version.ref = "view" }
 
+flowbinding-android = { module = "io.github.reactivecircus.flowbinding:flowbinding-android", version.ref = "flowBinding"}
+flowbinding-activity = { module = "io.github.reactivecircus.flowbinding:flowbinding-activity", version.ref = "flowBinding"}
+flowbinding-appcompat = { module = "io.github.reactivecircus.flowbinding:flowbinding-appcompat", version.ref = "flowBinding"}
+flowbinding-core = { module = "io.github.reactivecircus.flowbinding:flowbinding-core", version.ref = "flowBinding"}
+flowbinding-drawerlayout = { module = "io.github.reactivecircus.flowbinding:flowbinding-drawerlayout", version.ref = "flowBinding"}
+flowbinding-lifecycle = { module = "io.github.reactivecircus.flowbinding:flowbinding-lifecycle", version.ref = "flowBinding"}
+flowbinding-navigation = { module = "io.github.reactivecircus.flowbinding:flowbinding-navigation", version.ref = "flowBinding"}
+flowbinding-preference = { module = "io.github.reactivecircus.flowbinding:flowbinding-preference", version.ref = "flowBinding"}
+flowbinding-recyclerview = { module = "io.github.reactivecircus.flowbinding:flowbinding-recyclerview", version.ref = "flowBinding"}
+flowbinding-swiperefreshlayout = { module = "io.github.reactivecircus.flowbinding:flowbinding-swiperefreshlayout", version.ref = "flowBinding"}
+flowbinding-viewpager = { module = "io.github.reactivecircus.flowbinding:flowbinding-viewpager", version.ref = "flowBinding"}
+flowbinding-viewpager2 = { module = "io.github.reactivecircus.flowbinding:flowbinding-viewpager2", version.ref = "flowBinding"}
+flowbinding-material = { module = "io.github.reactivecircus.flowbinding:flowbinding-material", version.ref = "flowBinding"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
+[bundles]
+flowbindings = [
+    "flowbinding-android", "flowbinding-activity", "flowbinding-appcompat", "flowbinding-core",
+    "flowbinding-drawerlayout", "flowbinding-lifecycle", "flowbinding-navigation",
+    "flowbinding-preference", "flowbinding-recyclerview", "flowbinding-swiperefreshlayout",
+    "flowbinding-viewpager", "flowbinding-viewpager2", "flowbinding-material"
+]

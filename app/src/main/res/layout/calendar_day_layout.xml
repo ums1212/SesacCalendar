@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/calendarDayLayout"
-    android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-    <TextView android:id="@+id/calendarDayText"
+    <LinearLayout
+        android:id="@+id/insideCalendarDayLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="24sp"
-        tools:text="22"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <View
+            android:id="@+id/calendarDayDivider"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/sc_black" />
 
+        <TextView
+            android:id="@+id/calendarDayText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            tools:text="22" />
+
+    </LinearLayout>
 </LinearLayout>

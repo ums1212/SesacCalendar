@@ -46,9 +46,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbarMain"
         app:layout_constraintBottom_toTopOf="@id/linearLayoutAdd">
-        <include
-            android:id="@+id/titlesContainer"
-            layout="@layout/calendar_day_titles_container" />
+
         <!-- cv_daySize를 rectangle로 설정하면 셀의 크기를 부모의 크기에 맞출 수 있음 -->
         <com.kizitonwose.calendar.view.CalendarView
             android:id="@+id/calendarView"
@@ -86,9 +84,12 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextSchedule"
-                tools:hint="9월 30일에 일정 추가"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:inputType="text"
+                android:padding="10dp"
+                android:singleLine="true"
+                tools:hint="9월 30일에 일정 추가" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button

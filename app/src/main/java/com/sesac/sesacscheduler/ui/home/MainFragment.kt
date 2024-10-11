@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
@@ -16,7 +17,11 @@ import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
 import com.sesac.sesacscheduler.ui.common.BaseFragment
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import reactivecircus.flowbinding.android.view.clicks
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -24,9 +29,8 @@ import java.util.Locale
 
 class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate) {
 
-    private var selectedYear = 0
-    private var selectedMonth = 0
-    private var selectedDate = 0
+    private var selectedDate: LocalDate = LocalDate.now()
+    private var selectedDayView: LinearLayout? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -34,15 +38,18 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         // 초기 editTextView 힌트 설정
         binding.editTextSchedule.hint = "${LocalDateTime.now().monthValue}월 ${LocalDateTime.now().dayOfMonth}일에 일정 추가"
 
-        // 일정 추가 버튼
-        binding.buttonAdd.setOnClickListener {
-            if(binding.editTextSchedule.text.toString()==""){
-                // 일정 텍스트를 직접 입력하지 않고 추가하려고 할때
-                findNavController().navigate(R.id.action_mainFragment_to_addSchedulerFragment)
-            }else{
-                // 일정 텍스트를 직접 입력했을 때 자동으로 일정 추가
-            }
-        }
+        // 일정 추가 버튼 FlowBinding으로 UI이벤트 등록
+        binding.buttonAdd.clicks()
+            .onEach {
+                if(binding.editTextSchedule.text.toString()==""){
+                    // 일정 텍스트를 직접 입력하지 않고 추가하려고 할때
+                    findNavController().navigate(R.id.action_mainFragment_to_addSchedulerFragment)
+                }else{
+                    // 일정 텍스트를 직접 입력했을 때 자동으로 일정 추가
+                }
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
+
+        // 커스텀 캘린더 셋팅
         settingKizitonwoseCalendar()
     }
 
@@ -51,17 +58,19 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         with(binding.calendarView){
             dayBinder = object : MonthDayBinder<DayViewContainer> {
                 // Called only when a new container is needed.
-                override fun create(view: View) = DayViewContainer(view){ day ->
-                    if(day.date.year+day.date.monthValue+day.date.dayOfMonth == selectedYear+selectedMonth+selectedDate){
+                override fun create(view: View) = DayViewContainer(view, viewLifecycleOwner.lifecycleScope){ day ->
+                    notifyDateChanged(day.date)
+                    if(day.date == selectedDate){
                         // 날짜를 한번 더 클릭하면 일정 리스트로 이동
                         findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment)
                     }else{
+                        if(selectedDayView!=null) selectedDayView?.background = null
+                        selectedDayView = view as LinearLayout
+                        selectedDate = day.date
                         // 날짜가 변경될 때마다 editText의 hint내용 변경
-                        selectedYear = day.date.year
-                        selectedMonth = day.date.monthValue
-                        selectedDate = day.date.dayOfMonth
                         binding.editTextSchedule.hint = "${day.date.monthValue}월 ${day.date.dayOfMonth}일에 일정 추가"
-
+                        // 선택 날짜 테두리 표시
+                        selectedDayView?.background = resources.getDrawable(R.drawable.calendar_day_layout_selected, null)
                     }
                 }
 
@@ -80,7 +89,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                                 }
                             }else{
                                 // 해당 월의 날짜가 아닌 경우에는 회색
-                                R.color.sc_gray
+                                R.color.sc_black
                             },
                             null
                         )
@@ -104,7 +113,8 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                     if (container.titlesContainer.tag == null) {
                         container.titlesContainer.tag = data.yearMonth
                         // 월 셋팅
-                        (container.titlesContainer.children.first() as TextView).text = data.yearMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                        (container.titlesContainer.children.first() as TextView).text =
+                            data.yearMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
                         // 요일 셋팅
                         (container.titlesContainer.children.last() as LinearLayout)
                             .children.map { it as TextView }
@@ -128,8 +138,5 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                 }
             }
         }
-
-
     }
-
 }
