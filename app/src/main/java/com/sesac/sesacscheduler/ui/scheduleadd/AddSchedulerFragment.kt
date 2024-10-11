@@ -2,7 +2,9 @@ package com.sesac.sesacscheduler.ui.scheduleadd
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
@@ -31,7 +33,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentAddSchedulerBinding::inflate) {
 
 
-    private val viewModel by lazy{
+    /*private val viewModel by lazy{
         scheduleViewModelFactory.create(ScheduleViewModel::class.java)
     }
     private val compositeDisposable = CompositeDisposable()
@@ -46,9 +48,18 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
     private lateinit var shapeableImageView: ShapeableImageView
     private var image = 1
 
+    private var scheduleInfo = ScheduleInfo()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        initView()
+        return binding.root
+    }
+
+    private fun initView(){
         getCurrentDataAndTime()
         with(binding){
             chooseDate(tvStartDate)
@@ -63,6 +74,129 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         addSchedule()
         cancelSchedule()
     }
+
+    private fun chooseDate(date: MaterialTextView){
+        with(binding) {
+            compositeDisposable
+                .add(date.clicks()
+                    .observeOn(Schedulers.io())
+                    //.throttleFirst(300, TimeUnit.MILLISECONDS)3333
+                    .subscribe
+                        ({
+                        calendarVisible = changedVisibility(calendarView, calendarVisible)
+                        with(calendarView) {
+                            setOnDateChangeListener { _, _, month, dayOfMonth ->
+                                date.text = formatDate(month, dayOfMonth)
+                                scheduleInfo.startDate = date.text.toString()
+                                visibility = View.GONE
+                                calendarVisible = false
+                            }
+                        }
+
+                    },
+                        {   logE("날짜선택error", it.toString()) })
+
+                )
+        }
+    }
+    private fun chooseTime(time: MaterialTextView){
+        with(binding) {
+            compositeDisposable
+                .add(time.clicks()
+                    .observeOn(Schedulers.io())
+                    //.throttleFirst(300, TimeUnit.MILLISECONDS)
+                    .subscribe ({
+                        timeVisible = changedVisibility(timePicker, timeVisible)
+                        with(timePicker) {
+                            setOnTimeChangedListener { _, hour, minute ->
+                                val formattedTime = formatTime(hour, minute)
+                                time.text = formattedTime
+                                visibility = View.GONE
+                                timeVisible = false
+                            }
+                        }
+                    },
+                        {   logE("시간error", it.toString()) })
+                )
+        }
+    }
+    private fun chooseRepeat(){
+        binding.spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
+                repeat = when (position) {
+                    NO -> EnumRepeat.NO.repeat
+                    EVERY_DAY -> EnumRepeat.EVERY_DAY.repeat
+                    EVERY_WEEK -> EnumRepeat.EVERY_WEEK.repeat
+                    EVERY_MONTH -> EnumRepeat.EVERY_MONTH.repeat
+                    else -> 0
+                }
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+    }
+    private fun getCurrentDataAndTime(){
+        with(binding){
+            tvStartDate.text = formatCurrentDate()
+            tvLastDate.text = formatCurrentDate()
+            tvStartTime.text = formatCurrentTime()
+            tvEndTime.text = formatCurrentTime()
+        }
+    }
+    private fun choosePlace(){
+        //금천캠퍼스 37.4749-위도, 126.8911-경도
+
+    }
+    private fun chooseAlarm(){
+
+    }
+    private fun chooseColor() {
+        with(binding){
+            iconColor.setOnClickListener{
+                colorVisible = changedVisibility(flowColor, colorVisible)
+                iconColorLightpurple.setOnClickListener{
+                    image = EnumColor.LIGHT_PURPLE.color
+                    flowColor.visibility = View.GONE
+                    colorVisible = false
+                }
+                iconColorBlue.setOnClickListener{image = EnumColor.BLUE.color}
+                iconColorGreen.setOnClickListener{image = EnumColor.GREEN.color}
+                iconColorYellow.setOnClickListener{image = EnumColor.YELLOW.color}
+                iconColorRed.setOnClickListener{image = EnumColor.RED.color}
+                iconColorSkyblue.setOnClickListener{image = EnumColor.SKY_BLUE.color}
+                iconColorPurple.setOnClickListener{image = EnumColor.PURPLE.color}
+                iconColorRedviolet.setOnClickListener{image = EnumColor.RED_VIOLET.color}
+                iconColorGray.setOnClickListener{image = EnumColor.GRAY.color}
+                iconColorPink.setOnClickListener{image = EnumColor.PINK.color}
+            }
+        }
+    }
+    private fun changedVisibility(view: View, isVisible: Boolean): Boolean {
+        view.visibility = if (isVisible) View.GONE else View.VISIBLE
+        return !isVisible
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        compositeDisposable.add(binding.tvSave
+            .clicks()
+            .subscribe {
+                if(checkValidate()){
+                    addSchedule()
+                }
+            }
+        )
+    }
+    private fun checkValidate():Boolean{
+
+        return true
+    }
+
     private fun cancelSchedule(){
         compositeDisposable
             .add(binding.tvCancel
@@ -121,110 +255,9 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                 )
         }
     }
-    private fun chooseDate(date: MaterialTextView){
-        with(binding) {
-            compositeDisposable
-                .add(date.clicks()
-                    .observeOn(Schedulers.io())
-                    //.throttleFirst(300, TimeUnit.MILLISECONDS)
-                    .subscribe
-                        ({
-                            calendarVisible = changedVisibility(calendarView, calendarVisible)
-                            with(calendarView) {
-                                setOnDateChangeListener { _, _, month, dayOfMonth ->
-                                    date.text = formatDate(month, dayOfMonth)
-                                    visibility = View.GONE
-                                    calendarVisible = false
-                                }
-                            }
 
-                        },
-                        {   logE("날짜선택error", it.toString()) })
-
-                )
-        }
-    }
-    private fun chooseTime(time: MaterialTextView){
-        with(binding) {
-            compositeDisposable
-                .add(time.clicks()
-                    .observeOn(Schedulers.io())
-                    //.throttleFirst(300, TimeUnit.MILLISECONDS)
-                    .subscribe ({
-                        timeVisible = changedVisibility(timePicker, timeVisible)
-                        with(timePicker) {
-                            setOnTimeChangedListener { _, hour, minute ->
-                                val formattedTime = formatTime(hour, minute)
-                                time.text = formattedTime
-                                visibility = View.GONE
-                                timeVisible = false
-                            }
-                        }
-                    },
-                    {   logE("시간error", it.toString()) })
-                )
-        }
-    }
-    private fun chooseRepeat(){
-        binding.spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View,
-                position: Int,
-                id: Long
-            ) {
-                repeat = when (position) {
-                    NO -> EnumRepeat.NO.repeat
-                    EVERY_DAY -> EnumRepeat.EVERY_DAY.repeat
-                    EVERY_WEEK -> EnumRepeat.EVERY_WEEK.repeat
-                    EVERY_MONTH -> EnumRepeat.EVERY_MONTH.repeat
-                    else -> 0
-                }
-            }
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-        }
-    }
-    private fun getCurrentDataAndTime(){
-        with(binding){
-            tvStartDate.text = formatCurrentDate()
-            tvLastDate.text = formatCurrentDate()
-            tvStartTime.text = formatCurrentTime()
-            tvEndTime.text = formatCurrentTime()
-        }
-    }
-    private fun choosePlace(){
-
-    }
-    private fun chooseAlarm(){
-
-    }
-    private fun chooseColor() {
-        with(binding){
-            iconColor.setOnClickListener{
-                colorVisible = changedVisibility(flowColor, colorVisible)
-                iconColorLightpurple.setOnClickListener{
-                    image = EnumColor.LIGHT_PURPLE.color
-                    flowColor.visibility = View.GONE
-                    colorVisible = false
-                }
-                iconColorBlue.setOnClickListener{image = EnumColor.BLUE.color}
-                iconColorGreen.setOnClickListener{image = EnumColor.GREEN.color}
-                iconColorYellow.setOnClickListener{image = EnumColor.YELLOW.color}
-                iconColorRed.setOnClickListener{image = EnumColor.RED.color}
-                iconColorSkyblue.setOnClickListener{image = EnumColor.SKY_BLUE.color}
-                iconColorPurple.setOnClickListener{image = EnumColor.PURPLE.color}
-                iconColorRedviolet.setOnClickListener{image = EnumColor.RED_VIOLET.color}
-                iconColorGray.setOnClickListener{image = EnumColor.GRAY.color}
-                iconColorPink.setOnClickListener{image = EnumColor.PINK.color}
-            }
-        }
-    }
-    private fun changedVisibility(view: View, isVisible: Boolean): Boolean {
-        view.visibility = if (isVisible) View.GONE else View.VISIBLE
-        return !isVisible
-    }
         override fun onDestroy() {
         super.onDestroy()
         compositeDisposable.dispose()
-    }
+    }*/
 }
