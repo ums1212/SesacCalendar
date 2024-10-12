@@ -18,11 +18,11 @@ class ScheduleInfo {
     var endTime: String = ""
     var repeatDays: Int = 0
     var appointmentPlace: String = ""
-    var longitude: Double = 0.0
-    var latitude: Double = 0.0
+    var latitude: Double = 0.0 //위도
+    var longitude: Double = 0.0 //경도
     var appointmentAlarm: Boolean = false
-    var appointmentAlarmTime: String = ""
-    var color: Int = 1
+    var appointmentAlarmTime: Int = -1
+    var color: Int = 0
 
     constructor(){}
 
@@ -37,7 +37,7 @@ class ScheduleInfo {
         longitude: Double,
         latitude: Double,
         appointmentAlarm: Boolean,
-        appointmentAlarmTime: String,
+        appointmentAlarmTime: Int,
         color: Int
     ) {
         this.title = title

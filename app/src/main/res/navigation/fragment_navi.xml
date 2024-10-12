@@ -40,6 +40,14 @@
         <action
             android:id="@+id/action_addSchedulerFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
+        <argument
+            android:name="latitude"
+            app:argType="string"
+            android:defaultValue="0" />
+        <argument
+            android:name="longitude"
+            app:argType="string"
+            android:defaultValue="0" />
     </fragment>
     <fragment
         android:id="@+id/searchLocationFragment"
@@ -48,6 +56,15 @@
         tools:layout="@layout/fragment_search_location" >
         <action
             android:id="@+id/action_searchLocationFragment_to_addSchedulerFragment"
-            app:destination="@id/addSchedulerFragment" />
+            app:destination="@id/addSchedulerFragment">
+            <argument
+                android:name="latitude"
+                app:argType="string"
+                android:defaultValue="0" />
+            <argument
+                android:name="longitude"
+                app:argType="string"
+                android:defaultValue="0" />
+        </action>
     </fragment>
 </navigation>

@@ -2,21 +2,25 @@ package com.sesac.sesacscheduler.ui.scheduleadd
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import com.jakewharton.rxbinding4.view.clicks
 import com.sesac.sesacscheduler.R
+import com.sesac.sesacscheduler.common.BEFORE_1_HALF_HOUR
+import com.sesac.sesacscheduler.common.BEFORE_1_HOUR
+import com.sesac.sesacscheduler.common.BEFORE_2_HALF_HOUR
+import com.sesac.sesacscheduler.common.BEFORE_2_HOUR
+import com.sesac.sesacscheduler.common.BEFORE_3_HOUR
 import com.sesac.sesacscheduler.common.EVERY_DAY
 import com.sesac.sesacscheduler.common.EVERY_MONTH
 import com.sesac.sesacscheduler.common.EVERY_WEEK
+import com.sesac.sesacscheduler.common.EnumAlarmTime
 import com.sesac.sesacscheduler.common.EnumColor
-import com.sesac.sesacscheduler.common.NO
 import com.sesac.sesacscheduler.common.EnumRepeat
+import com.sesac.sesacscheduler.common.NO
 import com.sesac.sesacscheduler.common.formatCurrentDate
 import com.sesac.sesacscheduler.common.formatCurrentTime
 import com.sesac.sesacscheduler.common.formatDate
@@ -29,34 +33,46 @@ import com.sesac.sesacscheduler.ui.common.BaseFragment
 import com.sesac.sesacscheduler.viewmodel.ScheduleViewModel
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentAddSchedulerBinding::inflate) {
 
 
-    /*private val viewModel by lazy{
+    private val viewModel by lazy{
         scheduleViewModelFactory.create(ScheduleViewModel::class.java)
     }
     private val compositeDisposable = CompositeDisposable()
     private var calendarVisible = false
     private var timeVisible = false
     private var appointmentImageVisible = false
-    private var alarm = false
-    private var appointmentVisible = false
+    private var alarmSpinnerVisible = false
     private var colorVisible = false
-    private var repeat = 0
-    private var color = 1
-    private lateinit var shapeableImageView: ShapeableImageView
-    private var image = 1
 
+    private var repeatDays = 0
+    private var appointmentPlace = ""
+    private var longitude = 0.0
+    private var latitude = 0.0
+    private var appointmentAlarm = false
+    private var appointmentAlarmTime = 0
+    private var color = 0
+
+    private val navController by lazy {
+        findNavController()
+    }
+//    val args: AddSchedulerFragmentArgs by navArgs()
     private var scheduleInfo = ScheduleInfo()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initView()
-        return binding.root
+        compositeDisposable.add(binding.tvSave
+            .clicks()
+            .subscribe {
+                if(checkValidate()){
+                    addSchedule()
+                }
+            }
+        )
     }
 
     private fun initView(){
@@ -64,12 +80,12 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         with(binding){
             chooseDate(tvStartDate)
             chooseDate(tvLastDate)
-            chooseTime(tvStartTime)
-            chooseTime(tvEndTime)
+            chooseTime()
+            chooseTime()
         }
         chooseRepeat()
         choosePlace()
-        chooseAlarm()
+        chooseAlarmOnOff()
         chooseColor()
         addSchedule()
         cancelSchedule()
@@ -79,44 +95,68 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         with(binding) {
             compositeDisposable
                 .add(date.clicks()
-                    .observeOn(Schedulers.io())
-                    //.throttleFirst(300, TimeUnit.MILLISECONDS)3333
+//                    .observeOn(Schedulers.io())
+                    .throttleFirst(300, TimeUnit.MILLISECONDS)
                     .subscribe
-                        ({
-                        calendarVisible = changedVisibility(calendarView, calendarVisible)
-                        with(calendarView) {
-                            setOnDateChangeListener { _, _, month, dayOfMonth ->
-                                date.text = formatDate(month, dayOfMonth)
-                                scheduleInfo.startDate = date.text.toString()
-                                visibility = View.GONE
-                                calendarVisible = false
+                        {
+                            if(calendarView.visibility == View.GONE){
+                                calendarView.visibility = View.VISIBLE
+                            } else {
+                                calendarView.visibility = View.GONE
+                            }
+                            //calendarVisible = changedVisibility(calendarView, calendarVisible)
+                            with(calendarView) {
+                                setOnDateChangeListener { _, _, month, dayOfMonth ->
+                                    when(date){
+                                        tvStartDate -> {
+                                            tvStartDate.text = formatDate(month, dayOfMonth)
+                                        }
+                                        tvLastDate -> {
+                                            tvLastDate.text = formatDate(month, dayOfMonth)
+                                        }
+                                    }
+                                    visibility = View.GONE
+                                    calendarVisible = false
+                                }
                             }
                         }
-
-                    },
-                        {   logE("날짜선택error", it.toString()) })
-
                 )
         }
     }
-    private fun chooseTime(time: MaterialTextView){
+    private fun chooseTime(){
         with(binding) {
             compositeDisposable
-                .add(time.clicks()
+                .add(tvStartTime.clicks()
                     .observeOn(Schedulers.io())
-                    //.throttleFirst(300, TimeUnit.MILLISECONDS)
-                    .subscribe ({
-                        timeVisible = changedVisibility(timePicker, timeVisible)
-                        with(timePicker) {
-                            setOnTimeChangedListener { _, hour, minute ->
-                                val formattedTime = formatTime(hour, minute)
-                                time.text = formattedTime
-                                visibility = View.GONE
-                                timeVisible = false
+                    .throttleFirst(300, TimeUnit.MILLISECONDS)
+                    .subscribe
+                        ({
+                            if(timePicker.visibility == View.GONE){
+                                timePicker.visibility = View.VISIBLE
+                            } else {
+                                timePicker.visibility = View.GONE
                             }
-                        }
-                    },
-                        {   logE("시간error", it.toString()) })
+                            //timeVisible = changedVisibility(timePicker, timeVisible)
+                            with(timePicker) {
+                                setOnTimeChangedListener { _, hour, minute ->
+                                    when(tvStartTime){
+                                        tvStartTime -> {
+                                            tvStartTime.text = formatTime(hour, minute)
+                                            scheduleInfo.startTime = formatTime(hour, minute)
+                                        }
+                                        tvEndTime -> {
+                                            tvEndTime.text = formatTime(hour, minute)
+                                            scheduleInfo.endTime = formatTime(hour, minute)
+                                        }
+                                    }
+                                    visibility = View.GONE
+                                    timeVisible = false
+                                }
+                            }
+                        },
+                        {
+                            logE("시간error", it.toString())
+                        })
                 )
         }
     }
@@ -128,7 +168,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                 position: Int,
                 id: Long
             ) {
-                repeat = when (position) {
+                repeatDays = when (position) {
                     NO -> EnumRepeat.NO.repeat
                     EVERY_DAY -> EnumRepeat.EVERY_DAY.repeat
                     EVERY_WEEK -> EnumRepeat.EVERY_WEEK.repeat
@@ -136,64 +176,111 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                     else -> 0
                 }
             }
+
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
     }
-    private fun getCurrentDataAndTime(){
-        with(binding){
-            tvStartDate.text = formatCurrentDate()
-            tvLastDate.text = formatCurrentDate()
-            tvStartTime.text = formatCurrentTime()
-            tvEndTime.text = formatCurrentTime()
+    private fun choosePlace(){
+        //금천캠퍼스 37.4749-위도, 126.8911-경도 long
+        //사진 추가되면 visible로
+//        val latitude = args.latitude
+//        val longitude = args.longitude
+        binding.iconPlace.setOnClickListener {
+            navController.navigate(R.id.action_addSchedulerFragment_to_searchLocationFragment)
+        }
+//        scheduleInfo.latitude = latitude.toDouble()
+//        scheduleInfo.longitude = longitude.toDouble()
+    }
+    private fun chooseAlarmOnOff(){
+        with(binding) {
+            binding.switchAppointmentAlarm.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    appointmentAlarm = true
+                    changedVisibility(spinnerAlarm, alarmSpinnerVisible)
+                    chooseAlarmTime()
+                } else {
+                    appointmentAlarm = false
+                    spinnerAlarm.visibility = View.GONE
+                    alarmSpinnerVisible = false
+                }
+            }
         }
     }
-    private fun choosePlace(){
-        //금천캠퍼스 37.4749-위도, 126.8911-경도
-
-    }
-    private fun chooseAlarm(){
-
+    private fun chooseAlarmTime(){
+        binding.spinnerAlarm.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
+                appointmentAlarmTime = when (position) {
+                    BEFORE_1_HOUR -> EnumAlarmTime.BEFORE_1_HOUR.time
+                    BEFORE_1_HALF_HOUR -> EnumAlarmTime.BEFORE_1_HALF_HOUR.time
+                    BEFORE_2_HOUR -> EnumAlarmTime.BEFORE_2_HOUR.time
+                    BEFORE_2_HALF_HOUR -> EnumAlarmTime.BEFORE_2_HALF_HOUR.time
+                    BEFORE_3_HOUR -> EnumAlarmTime.BEFORE_3_HOUR.time
+                    else -> 0
+                }
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
     }
     private fun chooseColor() {
         with(binding){
-            iconColor.setOnClickListener{
+            iconColor.setOnClickListener {
                 colorVisible = changedVisibility(flowColor, colorVisible)
-                iconColorLightpurple.setOnClickListener{
-                    image = EnumColor.LIGHT_PURPLE.color
-                    flowColor.visibility = View.GONE
-                    colorVisible = false
-                }
-                iconColorBlue.setOnClickListener{image = EnumColor.BLUE.color}
-                iconColorGreen.setOnClickListener{image = EnumColor.GREEN.color}
-                iconColorYellow.setOnClickListener{image = EnumColor.YELLOW.color}
-                iconColorRed.setOnClickListener{image = EnumColor.RED.color}
-                iconColorSkyblue.setOnClickListener{image = EnumColor.SKY_BLUE.color}
-                iconColorPurple.setOnClickListener{image = EnumColor.PURPLE.color}
-                iconColorRedviolet.setOnClickListener{image = EnumColor.RED_VIOLET.color}
-                iconColorGray.setOnClickListener{image = EnumColor.GRAY.color}
-                iconColorPink.setOnClickListener{image = EnumColor.PINK.color}
+                chooseColorFromFlow(iconColorLightpurple)
+                chooseColorFromFlow(iconColorBlue)
+                chooseColorFromFlow(iconColorGreen)
+                chooseColorFromFlow(iconColorYellow)
+                chooseColorFromFlow(iconColorRed)
+                chooseColorFromFlow(iconColorSkyblue)
+                chooseColorFromFlow(iconColorPurple)
+                chooseColorFromFlow(iconColorRedviolet)
+                chooseColorFromFlow(iconColorGray)
+                chooseColorFromFlow(iconColorPink)
             }
         }
     }
+    private fun chooseColorFromFlow(choosecolor: ShapeableImageView){
+        with(binding) {
+            choosecolor.setOnClickListener {
+                color = when (choosecolor) {
+                    iconColorLightpurple -> EnumColor.LIGHT_PURPLE.color
+                    iconColorBlue -> EnumColor.BLUE.color
+                    iconColorGreen -> EnumColor.GREEN.color
+                    iconColorYellow -> EnumColor.YELLOW.color
+                    iconColorRed -> EnumColor.RED.color
+                    iconColorSkyblue -> EnumColor.SKY_BLUE.color
+                    iconColorPurple -> EnumColor.PURPLE.color
+                    iconColorRedviolet -> EnumColor.RED_VIOLET.color
+                    iconColorGray -> EnumColor.GRAY.color
+                    iconColorPink -> EnumColor.PINK.color
+                    else -> 0
+                }
+            }
+            colorVisible = false
+        }
+    }
+    /*
+    false -> visible
+    리턴 true
+
+    진짜 -> gone
+    리턴 false
+     */
+
     private fun changedVisibility(view: View, isVisible: Boolean): Boolean {
-        view.visibility = if (isVisible) View.GONE else View.VISIBLE
+        view.visibility = if (isVisible) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
         return !isVisible
     }
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        compositeDisposable.add(binding.tvSave
-            .clicks()
-            .subscribe {
-                if(checkValidate()){
-                    addSchedule()
-                }
-            }
-        )
-    }
     private fun checkValidate():Boolean{
-
         return true
     }
 
@@ -201,7 +288,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         compositeDisposable
             .add(binding.tvCancel
                 .clicks()
-                //.debounce(300, TimeUnit.MILLISECONDS)
+                .throttleFirst(300, TimeUnit.MILLISECONDS)
                 .subscribe {
                     findNavController().navigate(R.id.action_addSchedulerFragment_to_mainFragment)
                 }
@@ -213,7 +300,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                 .add(tvSave
                     .clicks()
                     .observeOn(Schedulers.io())
-                    //.throttleFirst(300, TimeUnit.MILLISECONDS)
+                    .throttleFirst(300, TimeUnit.MILLISECONDS)
                     .subscribe(
                         {
                             val title = etTitle.text.toString()
@@ -221,30 +308,15 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                             val lastDate = tvLastDate.text.toString()
                             val startTime = tvStartTime.text.toString()
                             val endTime = tvEndTime.text.toString()
-                            val repeatDays = repeat
+                            val repeatDays = scheduleInfo.repeatDays
                             val appointmentPlace = tvAppointmentPlace.text.toString()
-                            val longitude = 0.0
-                            val latitude = 0.0
-                            val appointmentAlarm = alarm
-                            val alarmTime = tvAlarmTime.text.toString()
-                            var color: Int
-//                            viewModel.insertSchedule(ScheduleInfo(title, startDate, lastDate, startTime, endTime, repeatDays, appointmentPlace, longitude, latitude, appointmentAlarm, alarmTime, color))
-
+                            val longitude = 31.5
+                            val latitude = 55.5
+                            val appointmentAlarm = appointmentAlarm
+                            val appointmentAlarmTime = appointmentAlarmTime
+                            val color = color
                             viewModel.insertSchedule(
-                                ScheduleInfo(
-                                    "ㅇ",
-                                    "ㅇ",
-                                    "ㅇ",
-                                    "ㅇ",
-                                    "ㅇ",
-                                    0,
-                                    "ㅇ",
-                                    0.0,
-                                    0.0,
-                                    true,
-                                    "ㅇ",
-                                    1
-                                )
+                                ScheduleInfo(title, startDate, lastDate, startTime, endTime, repeatDays, appointmentPlace, longitude, latitude, appointmentAlarm, appointmentAlarmTime, color)
                             )
                             Log.d("저장? - 프래그먼트 ", "")
                         },
@@ -255,9 +327,17 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                 )
         }
     }
+    private fun getCurrentDataAndTime(){
+        with(binding){
+            tvStartDate.text = formatCurrentDate()
+            tvLastDate.text = formatCurrentDate()
+            tvStartTime.text = formatCurrentTime()
+            tvEndTime.text = formatCurrentTime()
+        }
+    }
 
         override fun onDestroy() {
         super.onDestroy()
         compositeDisposable.dispose()
-    }*/
+    }
 }

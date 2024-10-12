@@ -1,21 +1,27 @@
 package com.sesac.sesacscheduler.ui.location
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import com.sesac.sesacscheduler.R
+import androidx.navigation.fragment.findNavController
 import com.sesac.sesacscheduler.databinding.FragmentSearchLocationBinding
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 
 class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(FragmentSearchLocationBinding::inflate) {
+    private var latitude : Double = 0.0
+    private var longitude : Double = 0.0
+    private val navController by lazy {
+        findNavController()
+    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search_location, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        latitude =  37.4749
+        longitude = 126.8911
+//        binding.btnTest.setOnClickListener{
+//            val action = SearchLocationFragmentDirections.actionSearchLocationFragmentToAddSchedulerFragment(latitude.toString(), longitude.toString())
+//            navController.navigate(action)
+//        }
     }
 
 }
+
