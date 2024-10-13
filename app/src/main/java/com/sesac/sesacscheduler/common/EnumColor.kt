@@ -1,6 +1,6 @@
 package com.sesac.sesacscheduler.common
 
-enum class EnumColor(val number: Int,val color: Int) {
+enum class EnumColor(val order: Int,val color: Int) {
     LIGHT_PURPLE(0,0),
     BLUE(1,1),
     GREEN(2,2),

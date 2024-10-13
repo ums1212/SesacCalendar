@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/scrollView_root">
+    android:id="@+id/scrollView_root"
+    android:background="@color/sub_gray">
 
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -91,7 +92,7 @@
         android:id="@+id/calendarView"
         android:layout_width="@dimen/zero"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_marginTop="@dimen/text_margin"
         app:layout_constraintEnd_toEndOf="@+id/guideline_end"
         app:layout_constraintStart_toStartOf="@+id/guideline_start"
@@ -390,7 +391,7 @@
         android:layout_height="@dimen/zero"
         app:flow_maxElementsWrap="2"
         app:flow_wrapMode="aligned"
-        android:background="@color/sc_blue"
+        android:background="@color/black"
         app:constraint_referenced_ids="tv_cancel,tv_save"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
