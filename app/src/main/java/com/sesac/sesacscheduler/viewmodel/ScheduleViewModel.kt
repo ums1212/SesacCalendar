@@ -82,13 +82,22 @@ class ScheduleViewModel : ViewModel() {
             }
         }
     }
-        fun findAllSchedule() = viewModelScope.launch {
-            withContext(ioDispatchers.coroutineContext) {
-                repository.findAllSchedule().collectLatest {
-                    _scheduleList.value = it
-                }
+
+    fun findAllSchedule() = viewModelScope.launch {
+        withContext(ioDispatchers.coroutineContext) {
+            repository.findAllSchedule().collectLatest {
+                _scheduleList.value = it
             }
         }
+    }
+
+    fun findScheduleByMonth(month: String) = viewModelScope.launch {
+        withContext(ioDispatchers.coroutineContext) {
+            repository.getScheduleMonth(month).collectLatest {
+                _scheduleList.value = it
+            }
+        }
+    }
 
 
 }
