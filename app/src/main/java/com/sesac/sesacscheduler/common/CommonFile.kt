@@ -8,17 +8,6 @@ import java.util.Locale
 
 const val MOCK_DELAY_TIME = 2000L
 
-const val NO = 0
-const val EVERY_DAY = 1
-const val EVERY_WEEK = 2
-const val EVERY_MONTH = 3
-
-const val BEFORE_1_HOUR = 0
-const val BEFORE_1_HALF_HOUR = 1
-const val BEFORE_2_HOUR = 2
-const val BEFORE_2_HALF_HOUR = 3
-const val BEFORE_3_HOUR = 4
-
 fun toastShort(message: String){
     Toast.makeText(SchedulerApplication.getSchedulerApplication(), message, Toast.LENGTH_SHORT).show()
 }

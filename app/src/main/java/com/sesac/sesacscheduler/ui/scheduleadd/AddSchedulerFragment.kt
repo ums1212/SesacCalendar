@@ -15,12 +15,12 @@ import com.sesac.sesacscheduler.common.formatCurrentDate
 import com.sesac.sesacscheduler.common.formatCurrentTime
 import com.sesac.sesacscheduler.common.formatDate
 import com.sesac.sesacscheduler.common.formatTime
+import com.sesac.sesacscheduler.common.logE
 import com.sesac.sesacscheduler.databinding.FragmentAddSchedulerBinding
 import com.sesac.sesacscheduler.factory.scheduleViewModelFactory
 import com.sesac.sesacscheduler.model.ScheduleInfo
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 import com.sesac.sesacscheduler.viewmodel.ScheduleViewModel
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentAddSchedulerBinding::inflate) {
 
@@ -31,30 +31,66 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
 
     private var scheduleId: Int? = null
 
-    private var repeatDays = 0
-    private var appointmentPlace = ""
-    private var longitude = 0.0
+    private var repeatDays = EnumRepeat.NO.repeat
+    private var appointmentAlarmTime = EnumAlarmTime.BEFORE_1_HOUR.time
+    private var color = EnumColor.LIGHT_PURPLE.color
     private var latitude = 0.0
-    private var appointmentAlarm = false
-    private var appointmentAlarmTime = 0
-    private var color = 0
+    private var longitude = 0.0
+    private var place = "약속 장소"
 
     private val navController by lazy {
         findNavController()
     }
 
+    //데이터 저장
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+//        with(binding){
+//            outState.putString("title",etTitle.text.toString())
+//            outState.putString("startDate",tvStartDate.text.toString())
+//            outState.putString("lastDate",tvLastDate.text.toString())
+//            outState.putString("startTime",tvStartTime.text.toString())
+//            outState.putString("endTime",tvEndTime.text.toString())
+//            outState.putInt("repeatDays",repeatDays)
+//            outState.putString("appointmentPlace",tvAppointmentPlace.text.toString())
+//            outState.putBoolean("appointmentAlarm",switchAppointmentAlarm.isChecked)
+//            outState.putInt("appointmentAlarmTime",appointmentAlarmTime)
+//            outState.putInt("color",color)
+//        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        logE("AddSchedulerFragment","onViewCreated시작")
+        //데이터 불러오기
+//        with(binding){
+//            savedInstanceState?.let {
+//                etTitle.setText(it.getString("title"))
+//                tvStartDate.text = it.getString("startDate")
+//                tvLastDate.text = it.getString("lastDate")
+//                tvStartTime.text = it.getString("startTime")
+//                tvEndTime.text = it.getString("endTime")
+//                repeatDays = it.getInt("repeatDays")
+//                tvAppointmentPlace.text = it.getString("appointmentPlace")
+//                switchAppointmentAlarm.isChecked = it.getBoolean("appointmentAlarm")
+//                appointmentAlarmTime = it.getInt("appointmentAlarmTime")
+//                color = it.getInt("color")
+//            }
+//        }
+        latitude = if(arguments?.getString("latitude").isNullOrEmpty()) 0.0 else arguments?.getString("latitude")!!.toDouble()
+        longitude = if(arguments?.getString("longitude").isNullOrEmpty()) 0.0 else arguments?.getString("longitude")!!.toDouble()
+        binding.tvAppointmentPlace.text = if(arguments?.getString("place").isNullOrEmpty()) "약속 장소" else arguments?.getString("place")!!
+
         getCurrentDataAndTime()
         scheduleId = arguments?.getInt("scheduleId")
         scheduleId?.let {
             viewModel.getSchedule(it)
         }
-        setupUIInteractions()
+        setupUI()
 
     }
-    private fun setupUIInteractions() {
+    private fun setupUI() {
         with(binding) {
             // 날짜 선택
             tvStartDate.setOnClickListener { showCalendarView(tvStartDate) }
@@ -68,8 +104,8 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             chooseRepeat()
 
             // 장소 선택
-            tvAppointmentPlace.setOnClickListener {
-                findNavController().navigate(R.id.action_addSchedulerFragment_to_searchLocationFragment)
+            iconPlace.setOnClickListener {
+                choosePlace()
             }
 
             // 알람 설정 스위치
@@ -84,14 +120,14 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             iconColor.setOnClickListener { toggleColorFlow() }
 
             // 취소 및 저장 버튼
-            tvCancel.setOnClickListener { findNavController().popBackStack() }
+            tvCancel.setOnClickListener { navController.popBackStack() }
             tvSave.setOnClickListener { addSchedule() }
         }
     }
     private fun showCalendarView(targetView: TextView) {
         with(binding.calendarView) {
             visibility = View.VISIBLE
-            setOnDateChangeListener { _, year, month, dayOfMonth ->
+            setOnDateChangeListener { _, _, month, dayOfMonth ->
                 targetView.text = formatDate(month, dayOfMonth)
                 visibility = View.GONE
             }
@@ -138,11 +174,8 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             val lastDate = tvLastDate.text.toString()
             val startTime = tvStartTime.text.toString()
             val endTime = tvEndTime.text.toString()
-            val appointmentPlace = tvAppointmentPlace.text.toString()
-            val longitude = 31.5
-            val latitude = 55.5
+            val appointmentPlace = place
             val appointmentAlarm = alarmOnOff()
-            val color = color
             viewModel.insertSchedule(
                 ScheduleInfo(
                     title,
@@ -152,14 +185,13 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                     endTime,
                     repeatDays,
                     appointmentPlace,
-                    longitude,
                     latitude,
+                    longitude,
                     appointmentAlarm,
                     appointmentAlarmTime,
                     color
                 )
             )
-            findNavController().popBackStack()
         }
     }
     private fun chooseRepeat(){
@@ -170,11 +202,14 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                     EnumRepeat.EVERY_DAY.order -> EnumRepeat.EVERY_DAY.repeat
                     EnumRepeat.EVERY_WEEK.order -> EnumRepeat.EVERY_WEEK.repeat
                     EnumRepeat.EVERY_MONTH.order -> EnumRepeat.EVERY_MONTH.repeat
-                    else -> 0
+                    else -> EnumRepeat.NO.repeat
                 }
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
+    }
+    private fun choosePlace(){
+        findNavController().navigate(R.id.action_addSchedulerFragment_to_searchLocationFragment)
     }
     private fun alarmOnOff() = binding.switchAppointmentAlarm.isChecked
     private fun chooseAlarmTime(){
@@ -186,7 +221,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                     EnumAlarmTime.BEFORE_2_HOUR.order -> EnumAlarmTime.BEFORE_2_HOUR.time
                     EnumAlarmTime.BEFORE_2_HALF_HOUR.order -> EnumAlarmTime.BEFORE_2_HALF_HOUR.time
                     EnumAlarmTime.BEFORE_3_HOUR.order -> EnumAlarmTime.BEFORE_3_HOUR.time
-                    else -> 0
+                    else -> EnumAlarmTime.BEFORE_1_HOUR.time
                 }
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {}
@@ -200,6 +235,22 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             tvEndTime.text = formatCurrentTime()
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        logE("AddSchedulerFragment","onResume 시작")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        logE("AddSchedulerFragment","onPause시작")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        logE("AddSchedulerFragment","onStop시작")
+    }
+
 }
 
 //    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

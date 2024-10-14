@@ -34,8 +34,8 @@ class ScheduleInfo {
         endTime: String,
         repeatDays: Int,
         appointmentPlace: String,
-        longitude: Double,
         latitude: Double,
+        longitude: Double,
         appointmentAlarm: Boolean,
         appointmentAlarmTime: Int,
         color: Int
@@ -47,8 +47,8 @@ class ScheduleInfo {
         this.endTime = endTime
         this.repeatDays = repeatDays
         this.appointmentPlace = appointmentPlace
-        this.longitude = longitude
         this.latitude = latitude
+        this.longitude = longitude
         this.appointmentAlarm = appointmentAlarm
         this.appointmentAlarmTime = appointmentAlarmTime
         this.color = color

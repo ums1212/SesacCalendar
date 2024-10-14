@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
-    //alias(libs.plugins.safe.args)
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -43,7 +43,6 @@ android {
 dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-
     // The view calendar library for Android
     implementation(libs.view)
     implementation(libs.androidx.core.ktx)
@@ -65,7 +64,5 @@ dependencies {
 
 
     implementation(libs.bundles.flowbindings)
-
-    //implementation(libs.safe.args.plugin)
 
 }

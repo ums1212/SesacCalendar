@@ -7,11 +7,13 @@
     android:orientation="vertical">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/search_place"
+        hintTextColor="@color/black"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="장소 찾기"
-        android:textSize="32sp" />
+        android:layout_height="80dp"
+        android:hint="검색하시오" />
 
     <Button
         android:id="@+id/btn_test"
