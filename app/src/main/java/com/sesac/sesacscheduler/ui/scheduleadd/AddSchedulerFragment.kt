@@ -174,7 +174,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             val lastDate = tvLastDate.text.toString()
             val startTime = tvStartTime.text.toString()
             val endTime = tvEndTime.text.toString()
-            val appointmentPlace = place
+            val appointmentPlace = tvAppointmentPlace.text.toString()
             val appointmentAlarm = alarmOnOff()
             viewModel.insertSchedule(
                 ScheduleInfo(

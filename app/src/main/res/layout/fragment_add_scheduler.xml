@@ -197,7 +197,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/appointment_place"
-        android:textColor="@color/sub_gray"
         android:textSize="@dimen/text_body"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toTopOf="@id/view_repeat"
@@ -404,7 +403,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cancel"
-        android:textSize="@dimen/text_body"
+        android:textSize="@dimen/text_header"
         android:textColor="@color/white"/>
 
     <com.google.android.material.textview.MaterialTextView
@@ -412,7 +411,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
-        android:textSize="@dimen/text_body"
+        android:textSize="@dimen/text_header"
         android:textColor="@color/white"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
