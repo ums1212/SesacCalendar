@@ -1,7 +1,6 @@
 package com.sesac.sesacscheduler.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -19,11 +18,11 @@ import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.sesac.sesacscheduler.R
+import com.sesac.sesacscheduler.common.EnumColor
 import com.sesac.sesacscheduler.common.ScheduleResult
 import com.sesac.sesacscheduler.common.toastShort
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
 import com.sesac.sesacscheduler.databinding.ScheduleBoxBinding
-import com.sesac.sesacscheduler.model.ScheduleInfo
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 import com.sesac.sesacscheduler.viewmodel.ScheduleViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -62,38 +61,14 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                 }
             }.launchIn(viewLifecycleOwner.lifecycleScope)
 
-//        viewModel.insertSchedule(ScheduleInfo("test1",LocalDate.now().plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
-//        viewModel.insertSchedule(ScheduleInfo("test2",LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
-//        viewModel.insertSchedule(ScheduleInfo("test3",LocalDate.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
-//        viewModel.insertSchedule(ScheduleInfo("test4",LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
-//        viewModel.insertSchedule(ScheduleInfo("test5",LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
+//        viewModel.insertSchedule(ScheduleInfo("test11",LocalDate.now().minusMonths(1).plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 6 ))
+//        viewModel.insertSchedule(ScheduleInfo("test12",LocalDate.now().minusMonths(1).plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 7 ))
+//        viewModel.insertSchedule(ScheduleInfo("test13",LocalDate.now().minusMonths(1).plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 8 ))
+//        viewModel.insertSchedule(ScheduleInfo("test14",LocalDate.now().minusMonths(1).plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 9 ))
+//        viewModel.insertSchedule(ScheduleInfo("test15",LocalDate.now().minusMonths(1).plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 10 ))
 
-        settingCollectors()
         // 커스텀 캘린더 셋팅
-//        settingKizitonwoseCalendar(listOf())
-        viewModel.findScheduleByMonth("2024-10")
-    }
-
-    private fun settingCollectors(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.scheduleList.collectLatest {
-                    when(it){
-                        is ScheduleResult.Success -> {
-                            it.resultData.forEach { data ->
-                                Log.d("test1234", "${data.startDate} : ${data.title}")
-                            }
-                            settingKizitonwoseCalendar(it.resultData)
-                        }
-                        is ScheduleResult.Loading -> {}
-                        is ScheduleResult.RoomDBError -> {
-                            toastShort("일정을 불러오는데 실패했습니다.")
-                        }
-                        else -> {}
-                    }
-                }
-            }
-        }
+        settingKizitonwoseCalendar()
     }
 
     private fun setCalendarMonth(currentMonth: YearMonth){
@@ -106,14 +81,15 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         }
     }
 
-    private fun settingKizitonwoseCalendar(scheduleList: List<ScheduleInfo>){
+    private fun settingKizitonwoseCalendar(){
         setCalendarMonth(YearMonth.of(selectedDate.year, selectedDate.month))
         // kizitonwose 라이브러리 사용
         with(binding.calendarView){
             // 달력 스크롤을 할 때마다 해당 월의 스케줄을 가져옴
-//            binding.calendarView.monthScrollListener = {
-//                viewModel.findScheduleByMonth(it.yearMonth.format(DateTimeFormatter.ofPattern("yyyy-MM")))
-//            }
+            binding.calendarView.monthScrollListener = {
+                if(scrollPaged) viewModel.findScheduleByMonth(it.yearMonth.format(DateTimeFormatter.ofPattern("yyyy-MM")))
+            }
+            // 일 레이아웃 바인딩
             dayBinder = object : MonthDayBinder<DayViewContainer> {
                 // Called only when a new container is needed.
                 override fun create(view: View) = DayViewContainer(view)
@@ -138,22 +114,43 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                             null
                         )
                     )
-                    // 일정이 있을 경우 추가
-                    scheduleList.find { data.date == LocalDate.parse(it.startDate) }.apply {
-                        Log.d("test1234", this.toString())
-                        val scheduleView = ScheduleBoxBinding.inflate(layoutInflater)
-                        scheduleView.textViewScheduleTitle.text = this?.title ?: ""
-                        container.root.addView(scheduleView.root)
+                    // 일정 표시
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        repeatOnLifecycle(Lifecycle.State.STARTED){
+                            viewModel.scheduleList.collectLatest { result ->
+                                when(result){
+                                    is ScheduleResult.Success -> {
+                                        // 일정이 있을 경우 추가
+                                        result.resultData.filter{ data.date == LocalDate.parse(it.startDate) }
+                                            .also { filteredList ->
+                                                if(filteredList.isNotEmpty()){
+                                                    container.scheduleBox.removeAllViews()
+                                                    filteredList.forEach { schedule ->
+                                                        val scheduleView = ScheduleBoxBinding.inflate(layoutInflater)
+                                                        scheduleView.textViewScheduleTitle.text = schedule.title
+                                                        scheduleView.textViewScheduleTitle.setBackgroundColor(resources.getColor(
+                                                            EnumColor.entries.find { it.color == schedule.color }!!.r, null)
+                                                        )
+                                                        container.scheduleBox.addView(scheduleView.root)
+                                                    }
+                                                }
+                                            }
+                                    }
+                                    is ScheduleResult.Loading -> {}
+                                    is ScheduleResult.RoomDBError -> {
+                                        toastShort("일정을 불러오는데 실패했습니다.")
+                                    }
+                                    else -> {}
+                                }
+                            }
+                        }
                     }
                     // 클릭 이벤트
                     container.view.clicks().onEach {
-                        val bundle = Bundle()
                         // 클릭 이벤트를 여기서 작성
-                        notifyDateChanged(data.date)
                         if(data.date == selectedDate){
                             // 날짜를 한번 더 클릭하면 일정 리스트로 이동
-                            bundle.putString("selectedDate", data.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                            findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment, bundle)
+                            moveToScheduleList(data.date)
                         }else{
                             if(selectedDayView!=null) selectedDayView?.background = null
                             selectedDayView = container.view as LinearLayout
@@ -167,6 +164,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                 }
             }
 
+            // 요일, 월 레이아웃 바인딩
             monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
                 override fun create(view: View) = MonthViewContainer(view)
                 override fun bind(container: MonthViewContainer, data: CalendarMonth) {
@@ -203,4 +201,12 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
             }
         }
     }
+
+    private fun moveToScheduleList(date: LocalDate) {
+        val bundle = Bundle().also {
+            it.putString("selectedDate", date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+        }
+        findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment, bundle)
+    }
+
 }
