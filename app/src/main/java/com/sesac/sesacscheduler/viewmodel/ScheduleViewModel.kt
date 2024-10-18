@@ -2,9 +2,13 @@ package com.sesac.sesacscheduler.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.sesac.sesacscheduler.common.ScheduleResult
+import com.sesac.sesacscheduler.common.SchedulerApplication
 import com.sesac.sesacscheduler.common.logE
 import com.sesac.sesacscheduler.common.toastShort
+import com.sesac.sesacscheduler.dao.ScheduleDAO
+import com.sesac.sesacscheduler.database.ScheduleRoomDatabase
 import com.sesac.sesacscheduler.model.ScheduleInfo
 import com.sesac.sesacscheduler.repo.ScheduleRepository
 import kotlinx.coroutines.CoroutineScope
@@ -17,8 +21,11 @@ import kotlinx.coroutines.withContext
 
 class ScheduleViewModel : ViewModel() {
 
+    private val database = ScheduleRoomDatabase.getDatabase(SchedulerApplication.getSchedulerApplication())
+    private val scheduleDAO = database.scheduleDao()
+
     private val repository: ScheduleRepository by lazy {
-        ScheduleRepository()
+        ScheduleRepository(scheduleDAO)
     }
     private var _scheduleList =
         MutableStateFlow<ScheduleResult<MutableList<ScheduleInfo>>>(ScheduleResult.NoConstructor)
@@ -45,9 +52,11 @@ class ScheduleViewModel : ViewModel() {
                                 logE("스케줄 저장(성공)", it.toString())
                             }
                         }
-
                         is ScheduleResult.Loading -> {
-                            logE("스케줄 저장(로딩)", it.toString())
+                            viewModelScope.launch {
+                                toastShort("스케줄 저장중...")
+                                logE("스케줄 저장(로딩)", it.toString())
+                            }
                         }
 
                         is ScheduleResult.RoomDBError -> {
