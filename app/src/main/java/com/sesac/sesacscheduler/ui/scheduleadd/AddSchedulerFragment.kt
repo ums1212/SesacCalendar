@@ -9,6 +9,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.common.EnumAlarmTime
 import com.sesac.sesacscheduler.common.EnumColor
@@ -96,8 +98,8 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                     iconColor.setColorFilter(ContextCompat.getColor(requireContext(), it.resultData.color))
                     color = it.resultData.color
                 }
-                is ScheduleResult.Loading -> toastShort("로딩중 : $it")
-                is ScheduleResult.RoomDBError -> toastShort("룸 에러 : $it")
+                is ScheduleResult.Loading -> toastShort("스케줄 세팅중 : $it")
+                is ScheduleResult.RoomDBError -> toastShort("스케줄 세팅 룸DB에러 : $it")
                 else ->  {
                     toastShort("하잇! : $it")
                     logE("ReSetupUI문제", "$it")
@@ -143,13 +145,43 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             }
         }
     }
+//    private fun showTimePicker(targetView: TextView) {
+//        with(binding.timePicker) {
+//            visibility = View.VISIBLE
+//            setOnTimeChangedListener { _, hourOfDay, minute ->
+//                targetView.text = formatTimeToString(hourOfDay, minute)
+//                visibility = View.GONE
+//            }
+//        }
+//    }
     private fun showTimePicker(targetView: TextView) {
-        with(binding.timePicker) {
-            visibility = View.VISIBLE
-            setOnTimeChangedListener { _, hourOfDay, minute ->
-                targetView.text = formatTimeToString(hourOfDay, minute)
-                visibility = View.GONE
-            }
+        showMaterialTimePicker { selectedTime ->
+            targetView.text = selectedTime
+        }
+    }
+    // TimePicker 다이얼로그를 표시하는 함수
+    private fun showMaterialTimePicker(onTimeSelected: (String) -> Unit) {
+        // MaterialTimePicker 빌더 설정
+        val picker = MaterialTimePicker.Builder()
+            .setTimeFormat(TimeFormat.CLOCK_24H)  // 24시간 형식
+            .setHour(12)  // 기본 시간 설정
+            .setMinute(0) // 기본 분 설정
+            .setTitleText("Select Time")  // 다이얼로그 제목
+            .build()
+
+        // 다이얼로그를 화면에 표시
+        picker.show(parentFragmentManager, "MaterialTimePicker")
+
+        // 사용자가 시간을 선택했을 때 콜백 처리
+        picker.addOnPositiveButtonClickListener {
+            // 선택한 시간과 분 가져오기
+            val selectedHour = picker.hour
+            val selectedMinute = picker.minute
+
+            // 시간 형식에 맞게 포맷 (예: 12:05)
+            val formattedTime = formatTimeToString(selectedHour, selectedMinute)
+            // 콜백으로 선택된 시간 전달
+            onTimeSelected(formattedTime)
         }
     }
     private fun toggleColorFlow() {
