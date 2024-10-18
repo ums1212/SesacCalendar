@@ -1,11 +1,15 @@
 package com.sesac.sesacscheduler.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
@@ -15,15 +19,22 @@ import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.sesac.sesacscheduler.R
+import com.sesac.sesacscheduler.common.ScheduleResult
+import com.sesac.sesacscheduler.common.toastShort
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
+import com.sesac.sesacscheduler.databinding.ScheduleBoxBinding
+import com.sesac.sesacscheduler.model.ScheduleInfo
 import com.sesac.sesacscheduler.ui.common.BaseFragment
+import com.sesac.sesacscheduler.viewmodel.ScheduleViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import reactivecircus.flowbinding.android.view.clicks
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -32,11 +43,13 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
     private var selectedDate: LocalDate = LocalDate.now()
     private var selectedDayView: LinearLayout? = null
 
+    private val viewModel: ScheduleViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
         // 초기 editTextView 힌트 설정
-        binding.editTextSchedule.hint = "${LocalDateTime.now().monthValue}월 ${LocalDateTime.now().dayOfMonth}일에 일정 추가"
+        binding.editTextSchedule.hint = "${selectedDate.monthValue}월 ${selectedDate.dayOfMonth}일에 일정 추가"
 
         // 일정 추가 버튼 FlowBinding으로 UI이벤트 등록
         binding.buttonAdd.clicks()
@@ -49,33 +62,64 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                 }
             }.launchIn(viewLifecycleOwner.lifecycleScope)
 
+//        viewModel.insertSchedule(ScheduleInfo("test1",LocalDate.now().plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
+//        viewModel.insertSchedule(ScheduleInfo("test2",LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
+//        viewModel.insertSchedule(ScheduleInfo("test3",LocalDate.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
+//        viewModel.insertSchedule(ScheduleInfo("test4",LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
+//        viewModel.insertSchedule(ScheduleInfo("test5",LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 1 ))
+
+        settingCollectors()
         // 커스텀 캘린더 셋팅
-        settingKizitonwoseCalendar()
+//        settingKizitonwoseCalendar(listOf())
+        viewModel.findScheduleByMonth("2024-10")
     }
 
-    private fun settingKizitonwoseCalendar(){
-        // kizitonwose 라이브러리 사용
-        with(binding.calendarView){
-            dayBinder = object : MonthDayBinder<DayViewContainer> {
-                // Called only when a new container is needed.
-                override fun create(view: View) = DayViewContainer(view, viewLifecycleOwner.lifecycleScope){ day ->
-                    notifyDateChanged(day.date)
-                    if(day.date == selectedDate){
-                        // 날짜를 한번 더 클릭하면 일정 리스트로 이동
-                        findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment)
-                    }else{
-                        if(selectedDayView!=null) selectedDayView?.background = null
-                        selectedDayView = view as LinearLayout
-                        selectedDate = day.date
-                        // 날짜가 변경될 때마다 editText의 hint내용 변경
-                        binding.editTextSchedule.hint = "${day.date.monthValue}월 ${day.date.dayOfMonth}일에 일정 추가"
-                        // 선택 날짜 테두리 표시
-                        selectedDayView?.background = resources.getDrawable(R.drawable.calendar_day_layout_selected, null)
+    private fun settingCollectors(){
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.scheduleList.collectLatest {
+                    when(it){
+                        is ScheduleResult.Success -> {
+                            it.resultData.forEach { data ->
+                                Log.d("test1234", "${data.startDate} : ${data.title}")
+                            }
+                            settingKizitonwoseCalendar(it.resultData)
+                        }
+                        is ScheduleResult.Loading -> {}
+                        is ScheduleResult.RoomDBError -> {
+                            toastShort("일정을 불러오는데 실패했습니다.")
+                        }
+                        else -> {}
                     }
                 }
+            }
+        }
+    }
 
+    private fun setCalendarMonth(currentMonth: YearMonth){
+        with(binding.calendarView){
+            val startMonth = currentMonth.minusMonths(100) // Adjust as needed
+            val endMonth = currentMonth.plusMonths(100) // Adjust as needed
+            val firstDayOfWeek = firstDayOfWeekFromLocale() // Available from the library
+            setup(startMonth, endMonth, firstDayOfWeek)
+            scrollToMonth(currentMonth)
+        }
+    }
+
+    private fun settingKizitonwoseCalendar(scheduleList: List<ScheduleInfo>){
+        setCalendarMonth(YearMonth.of(selectedDate.year, selectedDate.month))
+        // kizitonwose 라이브러리 사용
+        with(binding.calendarView){
+            // 달력 스크롤을 할 때마다 해당 월의 스케줄을 가져옴
+//            binding.calendarView.monthScrollListener = {
+//                viewModel.findScheduleByMonth(it.yearMonth.format(DateTimeFormatter.ofPattern("yyyy-MM")))
+//            }
+            dayBinder = object : MonthDayBinder<DayViewContainer> {
+                // Called only when a new container is needed.
+                override fun create(view: View) = DayViewContainer(view)
                 // Called every time we need to reuse a container.
                 override fun bind(container: DayViewContainer, data: CalendarDay) {
+                    // Set text for the day of the week.
                     container.day = data
                     container.textView.text = data.date.dayOfMonth.toString()
                     container.textView.setTextColor(
@@ -94,19 +138,39 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                             null
                         )
                     )
+                    // 일정이 있을 경우 추가
+                    scheduleList.find { data.date == LocalDate.parse(it.startDate) }.apply {
+                        Log.d("test1234", this.toString())
+                        val scheduleView = ScheduleBoxBinding.inflate(layoutInflater)
+                        scheduleView.textViewScheduleTitle.text = this?.title ?: ""
+                        container.root.addView(scheduleView.root)
+                    }
+                    // 클릭 이벤트
+                    container.view.clicks().onEach {
+                        val bundle = Bundle()
+                        // 클릭 이벤트를 여기서 작성
+                        notifyDateChanged(data.date)
+                        if(data.date == selectedDate){
+                            // 날짜를 한번 더 클릭하면 일정 리스트로 이동
+                            bundle.putString("selectedDate", data.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                            findNavController().navigate(R.id.action_mainFragment_to_scheduleListFragment, bundle)
+                        }else{
+                            if(selectedDayView!=null) selectedDayView?.background = null
+                            selectedDayView = container.view as LinearLayout
+                            selectedDate = data.date
+                            // 날짜가 변경될 때마다 editText의 hint내용 변경
+                            binding.editTextSchedule.hint = "${data.date.monthValue}월 ${data.date.dayOfMonth}일에 일정 추가"
+                            // 선택 날짜 테두리 표시
+                            selectedDayView?.background = resources.getDrawable(R.drawable.calendar_day_layout_selected, null)
+                        }
+                    }.launchIn(viewLifecycleOwner.lifecycleScope)
                 }
             }
-            val currentMonth = YearMonth.now()
-            val startMonth = currentMonth.minusMonths(100) // Adjust as needed
-            val endMonth = currentMonth.plusMonths(100) // Adjust as needed
-            val firstDayOfWeek = firstDayOfWeekFromLocale() // Available from the library
-            val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.SUNDAY)
-            setup(startMonth, endMonth, firstDayOfWeek)
-            scrollToMonth(currentMonth)
 
             monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
                 override fun create(view: View) = MonthViewContainer(view)
                 override fun bind(container: MonthViewContainer, data: CalendarMonth) {
+                    val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.SUNDAY)
                     // Remember that the header is reused so this will be called for each month.
                     // However, the first day of the week will not change so no need to bind
                     // the same view every time it is reused.
