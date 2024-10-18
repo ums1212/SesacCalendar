@@ -17,6 +17,7 @@ ksp = "1.9.24-1.0.20"
 rxbinding = "4.0.0"
 view = "2.6.0"
 flowBinding = "1.2.0"
+playServicesLocation = "21.3.0"
 
 
 [libraries]
@@ -49,6 +50,7 @@ flowbinding-swiperefreshlayout = { module = "io.github.reactivecircus.flowbindin
 flowbinding-viewpager = { module = "io.github.reactivecircus.flowbinding:flowbinding-viewpager", version.ref = "flowBinding"}
 flowbinding-viewpager2 = { module = "io.github.reactivecircus.flowbinding:flowbinding-viewpager2", version.ref = "flowBinding"}
 flowbinding-material = { module = "io.github.reactivecircus.flowbinding:flowbinding-material", version.ref = "flowBinding"}
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
