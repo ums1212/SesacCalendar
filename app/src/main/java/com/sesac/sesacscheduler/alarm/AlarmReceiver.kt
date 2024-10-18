@@ -50,19 +50,21 @@ class AlarmReceiver : BroadcastReceiver() {
             logE("현재", "위도: $currentLatitude, 경도: $currentLongitude")
 
             CoroutineScope(Dispatchers.IO).launch {
-                val weatherInfo = getWeatherInfo(latitude, longitude).await()
-                val tmapInfo = getTMapInfo(currentLatitude, currentLongitude, latitude, longitude).await()
-
                 if (latitude != 0.0) {
+                    logE("test","$latitude")
                     showRouteNotification(
                         context,
-                        weatherInfo,
-                        tmapInfo,
+                        getWeatherInfo(latitude, longitude).await(),
+                        getTMapInfo(currentLatitude, currentLongitude, latitude, longitude).await(),
                         scheduleTitle!!,
                         appointmentPlace!!
                     )
                 } else {
-                    showNotification(context, weatherInfo, scheduleTitle!!)
+                    showNotification(
+                        context,
+                        getWeatherInfo(latitude, longitude).await(),
+                        scheduleTitle!!
+                    )
                 }
             }
         }
@@ -198,8 +200,8 @@ class AlarmReceiver : BroadcastReceiver() {
 
                 // 하늘상태(SKY) 코드 : 맑음(1), 구름많음(3), 흐림(4)
                 WeatherInfo(firstItemSKY?.fcstValue?:"1", firstItemT1H?.fcstValue?:"2")
-            }else{
-                Log.e("test1234", "실패 ${it.code()}")
+            } else {
+                Log.e("getWeatherInfo", "실패 ${it.code()}")
                 throw Exception("getWeatherInfo: 실패")
             }
         }
