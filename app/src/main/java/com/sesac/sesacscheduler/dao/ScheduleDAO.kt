@@ -26,6 +26,9 @@ interface ScheduleDAO {
     @Query("SELECT * FROM schedule WHERE scheduleId = :id")
     fun getSchedule(id: Int): ScheduleInfo
 
+    @Query("SELECT * FROM schedule WHERE appointmentAlarm = 1")
+    suspend fun getSchedulesWithAlarm(): MutableList<ScheduleInfo>
+
     //해당 날짜 스케줄 가져오기
     @Query("SELECT * FROM schedule WHERE startDate = :date")
     fun getScheduleDate(date: String): MutableList<ScheduleInfo>
