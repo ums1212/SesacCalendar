@@ -26,31 +26,7 @@ class AlarmUsecase(private val alarmRepository: AlarmRepository) {
 
     // startDate와 startTime을 LocalDateTime으로 변환하는 헬퍼 메서드
     private fun convertToLocalDateTime(date: String, time: String): LocalDateTime {
-        // date: "3월2일", time: "21시25분"을 처리
-        val dateFormatter = DateTimeFormatter.ofPattern("M월d일")
-        val timeFormatter = DateTimeFormatter.ofPattern("H시m분")
-
-        // 각각 LocalDate와 LocalTime으로 파싱
-        val localDate = LocalDateTime.now().withMonth(parseMonth(date)).withDayOfMonth(parseDay(date))
-        val localTime = LocalDateTime.now().withHour(parseHour(time)).withMinute(parseMinute(time))
-
-        // LocalDateTime으로 결합
-        return localDate.with(localTime.toLocalTime())
-    }
-
-    private fun parseMonth(date: String): Int {
-        return date.substringBefore("월").toInt()
-    }
-
-    private fun parseDay(date: String): Int {
-        return date.substringAfter("월").substringBefore("일").toInt()
-    }
-
-    private fun parseHour(time: String): Int {
-        return time.substringBefore("시").toInt()
-    }
-
-    private fun parseMinute(time: String): Int {
-        return time.substringAfter("시").substringBefore("분").toInt()
+        val localDate = LocalDateTime.parse("$date $time", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        return localDate
     }
 }

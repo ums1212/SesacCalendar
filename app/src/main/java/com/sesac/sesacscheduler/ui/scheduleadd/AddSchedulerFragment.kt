@@ -49,8 +49,6 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         findNavController()
     }
 
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logE("AddSchedulerFragment","onViewCreated시작")
@@ -139,21 +137,12 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
     private fun showCalendarView(targetView: TextView) {
         with(binding.calendarView) {
             visibility = View.VISIBLE
-            setOnDateChangeListener { _, _, month, dayOfMonth ->
-                targetView.text = formatDate(month, dayOfMonth)
+            setOnDateChangeListener { _, year, month, dayOfMonth ->
+                targetView.text = formatDate(year, month, dayOfMonth)
                 visibility = View.GONE
             }
         }
     }
-//    private fun showTimePicker(targetView: TextView) {
-//        with(binding.timePicker) {
-//            visibility = View.VISIBLE
-//            setOnTimeChangedListener { _, hourOfDay, minute ->
-//                targetView.text = formatTimeToString(hourOfDay, minute)
-//                visibility = View.GONE
-//            }
-//        }
-//    }
     private fun showTimePicker(targetView: TextView) {
         showMaterialTimePicker { selectedTime ->
             targetView.text = selectedTime
@@ -166,24 +155,22 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             .setTimeFormat(TimeFormat.CLOCK_24H)  // 24시간 형식
             .setHour(12)  // 기본 시간 설정
             .setMinute(0) // 기본 분 설정
-            .setTitleText("Select Time")  // 다이얼로그 제목
+            .setTitleText("시간 선택해 보거라~~")  // 다이얼로그 제목
             .build()
-
         // 다이얼로그를 화면에 표시
         picker.show(parentFragmentManager, "MaterialTimePicker")
-
         // 사용자가 시간을 선택했을 때 콜백 처리
         picker.addOnPositiveButtonClickListener {
             // 선택한 시간과 분 가져오기
             val selectedHour = picker.hour
             val selectedMinute = picker.minute
-
             // 시간 형식에 맞게 포맷 (예: 12:05)
             val formattedTime = formatTimeToString(selectedHour, selectedMinute)
             // 콜백으로 선택된 시간 전달
             onTimeSelected(formattedTime)
         }
     }
+
     private fun toggleColorFlow() {
         with(binding){
             flowColor.visibility = View.VISIBLE
@@ -257,7 +244,6 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
 
     }
     private fun chooseRepeat(){
-
         binding.spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -273,7 +259,6 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                     else -> EnumRepeat.NO.repeat
                 }
             }
-
             override fun onNothingSelected(p0: AdapterView<*>?) {
                 repeatDays = EnumRepeat.NO.repeat
             }
