@@ -4,21 +4,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.ui.location.model.PoiItem
 
 class SearchAdapter(
-    private val places: MutableList<PoiItem>,
     private val onPlaceClick: (PoiItem) -> Unit
-) : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
+) : ListAdapter<PoiItem,SearchAdapter.SearchViewHolder>(PlaceDiffCallback()) {
 
-    // ViewHolder 클래스 정의
     class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvPlaceName: TextView = itemView.findViewById(R.id.tvPlaceName)
     }
 
-    // ViewHolder 생성
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_place, parent, false)
@@ -27,7 +26,7 @@ class SearchAdapter(
 
     // ViewHolder에 데이터 바인딩
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
-        val place = places[position]
+        val place = getItem(position)
         holder.tvPlaceName.text = place.name
 
         // 아이템 클릭 시 경도와 위도를 전달
@@ -36,8 +35,13 @@ class SearchAdapter(
         }
     }
 
-    // 아이템 개수 반환
-    override fun getItemCount(): Int {
-        return places.size
+    class PlaceDiffCallback : DiffUtil.ItemCallback<PoiItem>() {
+        override fun areItemsTheSame(oldItem: PoiItem, newItem: PoiItem): Boolean {
+            return oldItem.noorLat == newItem.noorLat
+        }
+
+        override fun areContentsTheSame(oldItem: PoiItem, newItem: PoiItem): Boolean {
+            return oldItem == newItem
+        }
     }
 }

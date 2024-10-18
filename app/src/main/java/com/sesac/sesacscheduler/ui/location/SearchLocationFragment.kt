@@ -10,14 +10,12 @@ import com.sesac.sesacscheduler.common.toastShort
 import com.sesac.sesacscheduler.databinding.FragmentSearchLocationBinding
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 import com.sesac.sesacscheduler.ui.location.manager.RetrofitInstance
-import com.sesac.sesacscheduler.ui.location.model.PoiItem
 import com.sesac.sesacscheduler.ui.location.model.TmapResponse
 import retrofit2.Call
 import retrofit2.Response
 
 class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(FragmentSearchLocationBinding::inflate) {
     private val apiKey = "l7xx7daab04e0de142cf800ce73e929f55e3"
-    private val placesList = mutableListOf<PoiItem>()
     private val navController by lazy {
         findNavController()
     }
@@ -25,16 +23,9 @@ class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(Fragm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        latitude = "37.4749"
-//        longitude = "126.8911"
-//        place = "금천캠퍼스2"
-//        val bundle = bundleOf("latitude" to latitude, "longitude" to longitude, "place" to place)
-//        binding.searchBtn.setOnClickListener{
-//            navController.navigate(R.id.action_searchLocationFragment_to_addSchedulerFragment,bundle)
-//        }
         with(binding){
             recyclerViewPoi.layoutManager = LinearLayoutManager(requireContext())
-            val searchAdapter = SearchAdapter(placesList) { selectedPlace ->
+            val searchAdapter = SearchAdapter { selectedPlace ->
                 val place = selectedPlace.name
                 val latitude = selectedPlace.noorLat
                 val longitude = selectedPlace.noorLon
@@ -61,9 +52,7 @@ class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(Fragm
         call.enqueue(object : retrofit2.Callback<TmapResponse> {
             override fun onResponse(call: Call<TmapResponse>, response: Response<TmapResponse>) {
                 if (response.isSuccessful && response.body() != null) {
-                    placesList.clear()
-                    placesList.addAll(response.body()!!.searchPoiInfo.pois.poi)
-                    adapter.notifyDataSetChanged() // RecyclerView 업데이트
+                    adapter.submitList(response.body()!!.searchPoiInfo.pois.poi)
                 }
             }
             override fun onFailure(call: Call<TmapResponse>, t: Throwable) {
@@ -71,6 +60,5 @@ class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(Fragm
             }
         })
     }
-
 }
 
