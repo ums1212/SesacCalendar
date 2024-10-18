@@ -6,7 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.sesac.sesacscheduler.alarm.usecase.AlarmUsecase
-import com.sesac.sesacscheduler.common.formatStringToTime
+import com.sesac.sesacscheduler.common.getAlarmTime
 import com.sesac.sesacscheduler.common.logE
 import com.sesac.sesacscheduler.model.ScheduleInfo
 import kotlinx.coroutines.CoroutineScope
@@ -43,11 +43,11 @@ class AlarmScheduler(private val context: Context, private val alarmUsecase: Ala
 
         // 약속 시간 1시간 전에 알림을 설정으로 해야하는데 30초후에 울리게 설정
         //val triggerTime = formatStringToTime(schedule.startTime)*1000 - (60 * 60 * 1000)  // 1시간 전
-        val triggerTime = formatStringToTime(schedule.startTime)*1000 + 30000
+        val triggerTime = getAlarmTime(schedule.startDate,schedule.startTime)
         logE("알람 시간", triggerTime.toString())
 
         // 알람 설정
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime.toLong(), pendingIntent)
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime.timeInMillis, pendingIntent)
     }
 
     override fun cancel() {

@@ -154,10 +154,8 @@ class AlarmReceiver : BroadcastReceiver() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
         // 위치 권한 확인
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             logE("위치 권한이 필요합니다.", "")
             return
         }
@@ -172,7 +170,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 // 위치 값을 콜백으로 전달
                 callback(latitude, longitude)
             } else {
-                logE("현재 위치를 가져오지 못했습니다.", "")
+                logE("현재 위치 가져오기 실패",task.toString())
                 callback(0.0, 0.0) // 위치를 가져오지 못한 경우 기본 값 전달
             }
         }
@@ -230,8 +228,8 @@ class AlarmReceiver : BroadcastReceiver() {
         }
         val walkInfo = CoroutineScope(Dispatchers.IO).async {
             val result = RetrofitManager.TMapService.tMapService.getWalkResult(
-                startX = 126.92365493654832,
-                startY = 37.556770374096615,
+                startX = currentLongitude,
+                startY = currentLatitude,
                 endX = longitude,
                 endY = latitude,
                 startName = "%EC%B6%9C%EB%B0%9C",
