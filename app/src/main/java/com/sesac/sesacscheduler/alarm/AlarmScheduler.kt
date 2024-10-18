@@ -12,6 +12,7 @@ import com.sesac.sesacscheduler.model.ScheduleInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class AlarmScheduler(private val context: Context, private val alarmUsecase: AlarmUsecase): AlarmSchedulerInterface {
 
@@ -42,8 +43,8 @@ class AlarmScheduler(private val context: Context, private val alarmUsecase: Ala
         )
 
         // 약속 시간 1시간 전에 알림을 설정으로 해야하는데 30초후에 울리게 설정
-        //val triggerTime = formatStringToTime(schedule.startTime)*1000 - (60 * 60 * 1000)  // 1시간 전
         val triggerTime = getAlarmTime(schedule.startDate,schedule.startTime)
+        triggerTime.add(Calendar.SECOND, -50) //50초 전으로 설정
         logE("알람 시간", triggerTime.toString())
 
         // 알람 설정
