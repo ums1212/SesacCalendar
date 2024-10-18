@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.sesac.sesacscheduler.dao.ScheduleDAO
 import com.sesac.sesacscheduler.model.ScheduleInfo
 
-@Database(entities = [ScheduleInfo::class], exportSchema = false, version = 1)
+@Database(entities = [ScheduleInfo::class], exportSchema = false, version = 2)
 abstract class ScheduleRoomDatabase : RoomDatabase() {
 
     abstract fun scheduleDao(): ScheduleDAO
