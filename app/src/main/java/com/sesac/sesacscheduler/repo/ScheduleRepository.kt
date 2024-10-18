@@ -12,9 +12,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlin.math.exp
 
-class ScheduleRepository {
-
-    private var scheduleDAO: ScheduleDAO
+class ScheduleRepository(private var scheduleDAO: ScheduleDAO) {
 
     init {
         val scheduleDatabase = ScheduleRoomDatabase.getDatabase(SchedulerApplication.getSchedulerApplication())
@@ -24,7 +22,8 @@ class ScheduleRepository {
     fun insertSchedule(newSchedule: ScheduleInfo) = flow {
         emit(ScheduleResult.Loading)
         delay(MOCK_DELAY_TIME)
-        emit(ScheduleResult.Success(scheduleDAO.insertSchedule(newSchedule)))
+        val scheduleToInsert = newSchedule.copy(title = newSchedule.title.ifEmpty { "내일정" }) // 빈 값일 경우 기본값 설정
+        emit(ScheduleResult.Success(scheduleDAO.insertSchedule(scheduleToInsert)))
     }.catch { exception -> emit(ScheduleResult.RoomDBError(exception)) }
 
     fun updateSchedule(newSchedule: ScheduleInfo) = flow {
