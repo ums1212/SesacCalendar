@@ -91,11 +91,39 @@ class ScheduleViewModel : ViewModel() {
             }
         }
     }
-        fun findAllSchedule() = viewModelScope.launch {
+    fun findAllSchedule() = viewModelScope.launch {
+        withContext(ioDispatchers.coroutineContext) {
+            repository.findAllSchedule().collectLatest {
+                _scheduleList.value = it
+            }
+        }
+    }
+    fun updateSchedule(updatedSchedule: ScheduleInfo) {
+        viewModelScope.launch {
             withContext(ioDispatchers.coroutineContext) {
-                repository.findAllSchedule().collectLatest {
-                    _scheduleList.value = it
+                repository.updateSchedule(updatedSchedule).collectLatest {
+                    when (it) {
+                        is ScheduleResult.Success -> {
+                            viewModelScope.launch {
+                                toastShort("스케줄 수정 완료")
+                                logE("스케줄 수정(성공)", it.toString())
+                            }
+                        }
+
+                        is ScheduleResult.Loading -> {
+                            logE("스케줄 수정(로딩)", it.toString())
+                        }
+
+                        is ScheduleResult.RoomDBError -> {
+                            logE("스케줄 수정(DB에러)", it.exception.toString())
+                        }
+
+                        else -> {
+                            logE("스케줄 수정(너가 왜뜨니?)", it.toString())
+                        }
+                    }
                 }
             }
         }
+    }
 }

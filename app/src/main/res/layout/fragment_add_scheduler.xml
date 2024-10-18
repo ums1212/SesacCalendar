@@ -51,6 +51,17 @@
         app:layout_constraintStart_toStartOf="@id/guideline_start"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/delete"
+        android:textSize="@dimen/text_body"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/guideline_end"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/small_margin"/>
+
     <View
         android:id="@+id/view_title"
         android:layout_width="match_parent"
