@@ -2,7 +2,16 @@ package com.sesac.sesacscheduler.common
 
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.sesac.sesacscheduler.R
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -64,3 +73,9 @@ fun getScheduleColorResource(color: Int)
         EnumColor.YELLOW.color -> R.color.sc_yellow
         else -> R.color.white
     }
+
+fun <T> LifecycleOwner.collectWhenStarted(flow: StateFlow<T>, action: suspend (value: T) -> Unit) {
+    lifecycleScope.launch {
+        flow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect(action)
+    }
+}
