@@ -19,9 +19,11 @@ import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.common.ScheduleResult
 import com.sesac.sesacscheduler.common.collectWhenStarted
 import com.sesac.sesacscheduler.common.getScheduleColorResource
+import com.sesac.sesacscheduler.common.hideSoftInput
 import com.sesac.sesacscheduler.common.toastShort
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
 import com.sesac.sesacscheduler.databinding.ScheduleBoxBinding
+import com.sesac.sesacscheduler.model.ScheduleInfo
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 import com.sesac.sesacscheduler.viewmodel.ScheduleViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -60,8 +62,28 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                     findNavController().navigate(R.id.action_mainFragment_to_addSchedulerFragment)
                 }else{
                     // 일정 텍스트를 직접 입력했을 때 자동으로 일정 추가
+                    // 달력에서 선택한 날짜 기준으로 저장됨
+                    addSchedule()
                 }
             }.launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun addSchedule(){
+        val title = binding.editTextSchedule.text.toString()
+        if(title.isNotEmpty()){
+            val schedule = ScheduleInfo(
+                title = title,
+                startDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                lastDate = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+            )
+            viewModel.insertSchedule(schedule)
+            binding.editTextSchedule.text?.clear()
+            requireActivity().hideSoftInput()
+
+            collectWhenStarted(viewModel.scheduleComplete){
+                if(it) settingKizitonwoseCalendar()
+            }
+        }
     }
 
     private fun setCalendarMonth(currentMonth: YearMonth){
@@ -110,6 +132,10 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                             null
                         )
                     )
+                    // 초기 선택일 표시
+                    if(data.date==selectedDate){
+                        selectedDayView(data, container)
+                    }
                     // 일정 데이터 불러와서 표시
                     showScheduleOnContainer(data, container)
                     // 일정 클릭 이벤트
@@ -126,17 +152,21 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                             // 날짜를 한번 더 클릭하면 일정 리스트로 이동
                             moveToScheduleList(data.date)
                         } else {
-                            if (selectedDayView != null) selectedDayView?.background = null
-                            selectedDayView = container.view as LinearLayout
-                            selectedDate = data.date
-                            // 날짜가 변경될 때마다 editText의 hint내용 변경
-                            binding.editTextSchedule.hint =
-                                "${data.date.monthValue}월 ${data.date.dayOfMonth}일에 일정 추가"
-                            // 선택 날짜 테두리 표시
-                            selectedDayView?.background =
-                                resources.getDrawable(R.drawable.calendar_day_layout_selected, null)
+                            selectedDayView(data, container)
                         }
                     }.launchIn(viewLifecycleOwner.lifecycleScope)
+                }
+
+                fun selectedDayView(data: CalendarDay, container: DayViewContainer){
+                    if (selectedDayView != null) selectedDayView?.background = null
+                    selectedDayView = container.view as LinearLayout
+                    selectedDate = data.date
+                    // 날짜가 변경될 때마다 editText의 hint내용 변경
+                    binding.editTextSchedule.hint =
+                        "${data.date.monthValue}월 ${data.date.dayOfMonth}일에 일정 추가"
+                    // 선택 날짜 테두리 표시
+                    selectedDayView?.background =
+                        resources.getDrawable(R.drawable.calendar_day_layout_selected, null)
                 }
 
                 fun showScheduleOnContainer(
