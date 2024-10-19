@@ -2,30 +2,27 @@ package com.sesac.sesacscheduler.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 
 @Entity(tableName = "schedule")
-class ScheduleInfo {
+data class ScheduleInfo (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "scheduleId")
-    var id: Int = 0
-    var title: String = ""
-    var startDate: String = ""
-    var lastDate: String = ""
-    var startTime: String = ""
-    var endTime: String = ""
-    var repeatDays: Int = 0
-    var appointmentPlace: String = ""
-    var longitude: Double = 0.0
-    var latitude: Double = 0.0
-    var appointmentAlarm: Boolean = false
-    var appointmentAlarmTime: String = ""
-    var color: Int = 1
-
-    constructor(){}
-
+    var id: Int = 0,
+    var title: String = "내일정",
+    var startDate: String = "",
+    var lastDate: String = "",
+    var startTime: String = "",
+    var endTime: String = "",
+    var repeatDays: Int = 0,
+    var appointmentPlace: String = "",
+    var latitude: Double = 0.0, //위도
+    var longitude: Double = 0.0, //경도
+    var appointmentAlarm: Boolean = false,
+    var appointmentAlarmTime: Int = -1,
+    var color: Int = 0
+){
     constructor(
         title: String,
         startDate: String,
@@ -34,12 +31,12 @@ class ScheduleInfo {
         endTime: String,
         repeatDays: Int,
         appointmentPlace: String,
-        longitude: Double,
         latitude: Double,
+        longitude: Double,
         appointmentAlarm: Boolean,
-        appointmentAlarmTime: String,
+        appointmentAlarmTime: Int,
         color: Int
-    ) {
+    ) : this() {
         this.title = title
         this.startDate = startDate
         this.lastDate = lastDate
@@ -47,8 +44,8 @@ class ScheduleInfo {
         this.endTime = endTime
         this.repeatDays = repeatDays
         this.appointmentPlace = appointmentPlace
-        this.longitude = longitude
         this.latitude = latitude
+        this.longitude = longitude
         this.appointmentAlarm = appointmentAlarm
         this.appointmentAlarmTime = appointmentAlarmTime
         this.color = color

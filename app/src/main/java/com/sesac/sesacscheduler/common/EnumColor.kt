@@ -1,16 +1,14 @@
 package com.sesac.sesacscheduler.common
 
-import com.sesac.sesacscheduler.R
-
-enum class EnumColor(val color: Int, val r: Int) {
-    LIGHT_PURPLE(1, R.color.sc_lightpurple),
-    BLUE(2, R.color.sc_blue),
-    GREEN(3, R.color.sc_green),
-    YELLOW(4, R.color.sc_yellow),
-    RED(5, R.color.sc_red),
-    SKY_BLUE(6, R.color.sc_skyblue),
-    PURPLE(7, R.color.sc_purple),
-    RED_VIOLET(8, R.color.sc_redviolet),
-    GRAY(9, R.color.sc_gray),
-    PINK(10, R.color.sc_pink)
+enum class EnumColor(val order: Int,val color: Int) {
+    LIGHT_PURPLE(0,0),
+    BLUE(1,1),
+    GREEN(2,2),
+    YELLOW(3,3),
+    RED(4,4),
+    SKY_BLUE(5,5),
+    PURPLE(6,6),
+    RED_VIOLET(7,7),
+    GRAY(8,8),
+    PINK(9,9)
 }

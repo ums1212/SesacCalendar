@@ -22,7 +22,9 @@ abstract class ScheduleRoomDatabase : RoomDatabase() {
                             context.applicationContext,
                             ScheduleRoomDatabase::class.java,
                             "schedule_database"
-                        ).build()
+                        )
+                            .fallbackToDestructiveMigration() //스키마 파괴하고 다시 만들기(테스트용)
+                            .build()
                 }
             }
             return INSTANCE

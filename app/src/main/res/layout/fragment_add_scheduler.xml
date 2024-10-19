@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/scrollView_root">
+    android:id="@+id/scrollView_root"
+    android:background="@color/sub_gray">
 
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -50,6 +51,17 @@
         app:layout_constraintStart_toStartOf="@id/guideline_start"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/delete"
+        android:textSize="@dimen/text_body"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/guideline_end"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/small_margin"/>
+
     <View
         android:id="@+id/view_title"
         android:layout_width="match_parent"
@@ -91,7 +103,7 @@
         android:id="@+id/calendarView"
         android:layout_width="@dimen/zero"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_marginTop="@dimen/text_margin"
         app:layout_constraintEnd_toEndOf="@+id/guideline_end"
         app:layout_constraintStart_toStartOf="@+id/guideline_start"
@@ -196,7 +208,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/appointment_place"
-        android:textColor="@color/sub_gray"
         android:textSize="@dimen/text_body"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toTopOf="@id/view_repeat"
@@ -390,7 +401,7 @@
         android:layout_height="@dimen/zero"
         app:flow_maxElementsWrap="2"
         app:flow_wrapMode="aligned"
-        android:background="@color/sc_blue"
+        android:background="@color/black"
         app:constraint_referenced_ids="tv_cancel,tv_save"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -403,7 +414,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cancel"
-        android:textSize="@dimen/text_body"
+        android:textSize="@dimen/text_header"
         android:textColor="@color/white"/>
 
     <com.google.android.material.textview.MaterialTextView
@@ -411,7 +422,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
-        android:textSize="@dimen/text_body"
+        android:textSize="@dimen/text_header"
         android:textColor="@color/white"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
