@@ -2,6 +2,7 @@ package com.sesac.sesacscheduler.common
 
 import android.util.Log
 import android.widget.Toast
+import com.sesac.sesacscheduler.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -49,3 +50,17 @@ fun getAlarmTime(date: String, time: String): Calendar {
     return calendar
 }
 
+fun getScheduleColorResource(color: Int)
+    = when(color){
+        EnumColor.RED.color -> R.color.sc_red
+        EnumColor.BLUE.color -> R.color.sc_blue
+        EnumColor.GRAY.color -> R.color.sc_gray
+        EnumColor.PINK.color -> R.color.sc_pink
+        EnumColor.GREEN.color -> R.color.sc_green
+        EnumColor.LIGHT_PURPLE.color -> R.color.sc_lightpurple
+        EnumColor.PURPLE.color -> R.color.sc_purple
+        EnumColor.RED_VIOLET.color -> R.color.sc_redviolet
+        EnumColor.SKY_BLUE.color -> R.color.sc_skyblue
+        EnumColor.YELLOW.color -> R.color.sc_yellow
+        else -> R.color.white
+    }

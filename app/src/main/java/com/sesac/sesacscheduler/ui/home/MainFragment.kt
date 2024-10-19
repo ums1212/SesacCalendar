@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -20,6 +21,7 @@ import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.common.EnumColor
 import com.sesac.sesacscheduler.common.ScheduleResult
+import com.sesac.sesacscheduler.common.getScheduleColorResource
 import com.sesac.sesacscheduler.common.toastShort
 import com.sesac.sesacscheduler.databinding.FragmentMainBinding
 import com.sesac.sesacscheduler.databinding.ScheduleBoxBinding
@@ -46,7 +48,7 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         // 초기 editTextView 힌트 설정
         binding.editTextSchedule.hint = "${selectedDate.monthValue}월 ${selectedDate.dayOfMonth}일에 일정 추가"
 
@@ -60,12 +62,6 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                     // 일정 텍스트를 직접 입력했을 때 자동으로 일정 추가
                 }
             }.launchIn(viewLifecycleOwner.lifecycleScope)
-
-//        viewModel.insertSchedule(ScheduleInfo("test11",LocalDate.now().minusMonths(1).plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 6 ))
-//        viewModel.insertSchedule(ScheduleInfo("test12",LocalDate.now().minusMonths(1).plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 7 ))
-//        viewModel.insertSchedule(ScheduleInfo("test13",LocalDate.now().minusMonths(1).plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 8 ))
-//        viewModel.insertSchedule(ScheduleInfo("test14",LocalDate.now().minusMonths(1).plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 9 ))
-//        viewModel.insertSchedule(ScheduleInfo("test15",LocalDate.now().minusMonths(1).plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now().minusMonths(1).plusDays(4).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), "09:30", "09:30", 0, "test", 0.0, 0.0, true, "09:30", 10 ))
 
         // 커스텀 캘린더 셋팅
         settingKizitonwoseCalendar()
@@ -128,8 +124,8 @@ class MainFragment : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
                                                     filteredList.forEach { schedule ->
                                                         val scheduleView = ScheduleBoxBinding.inflate(layoutInflater)
                                                         scheduleView.textViewScheduleTitle.text = schedule.title
-                                                        scheduleView.textViewScheduleTitle.setBackgroundColor(resources.getColor(
-                                                            EnumColor.entries.find { it.color == schedule.color }!!.r, null)
+                                                        scheduleView.textViewScheduleTitle.setBackgroundColor(
+                                                            resources.getColor(getScheduleColorResource(schedule.color), null)
                                                         )
                                                         container.scheduleBox.addView(scheduleView.root)
                                                     }
