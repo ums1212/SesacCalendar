@@ -34,7 +34,7 @@ fun logE(tag: String, message: String) {
 fun formatDate(year: Int, month: Int, dayOfMonth: Int): String = "$year-${String.format("%02d", month + 1)}-${String.format("%02d", dayOfMonth)}"
 fun formatTimeToString(hour: Int, minute: Int): String = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
 fun formatCurrentDate(): String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
-fun formatCurrentTime(): String = SimpleDateFormat("hh:mm", Locale.getDefault()).format(Calendar.getInstance().time)
+fun formatCurrentTime(): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
 fun getAlarmTime(date: String, time: String): Calendar {
     // 날짜 포맷 (yyyy-MM-dd)
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
