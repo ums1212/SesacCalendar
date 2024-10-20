@@ -53,6 +53,10 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Bundle에서 scheduleId 가져오기
+        arguments?.let {
+            scheduleId = it.getInt("scheduleId")
+        }
         logE("AddSchedulerFragment","onViewCreated시작")
         setupArgument()
         setupSpinnerAdapter()
@@ -210,6 +214,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                 viewModel.updateSchedule(schedule)
             } else {
                 viewModel.insertSchedule(schedule)
+                navController.popBackStack() // 일정 저장 후 뒤로 이동
             }
         }
     }

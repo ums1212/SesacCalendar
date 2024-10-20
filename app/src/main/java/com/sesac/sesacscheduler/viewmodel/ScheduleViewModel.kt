@@ -3,6 +3,7 @@ package com.sesac.sesacscheduler.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import android.util.Log
 import com.sesac.sesacscheduler.alarm.AlarmScheduler
 import com.sesac.sesacscheduler.alarm.repository.AlarmRepository
 import com.sesac.sesacscheduler.alarm.usecase.AlarmUsecase
@@ -17,6 +18,7 @@ import com.sesac.sesacscheduler.repo.ScheduleRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -24,7 +26,8 @@ import kotlinx.coroutines.withContext
 
 class ScheduleViewModel : ViewModel() {
 
-    private val database = ScheduleRoomDatabase.getDatabase(SchedulerApplication.getSchedulerApplication())
+    private val database =
+        ScheduleRoomDatabase.getDatabase(SchedulerApplication.getSchedulerApplication())
     private val scheduleDAO = database.scheduleDao()
 
     private val repository: ScheduleRepository by lazy {
@@ -56,11 +59,15 @@ class ScheduleViewModel : ViewModel() {
                             viewModelScope.launch {
                                 toastShort("스케줄 저장")
                                 logE("스케줄 저장(성공)", it.toString())
-                                AlarmScheduler(SchedulerApplication.getSchedulerApplication(), AlarmUsecase(AlarmRepository(scheduleDAO)))
+                                AlarmScheduler(
+                                    SchedulerApplication.getSchedulerApplication(),
+                                    AlarmUsecase(AlarmRepository(scheduleDAO))
+                                )
                                     .scheduleAlarmsForAppointments()
                                 _scheduleComplete.emit(true)
                             }
                         }
+
                         is ScheduleResult.Loading -> {
                             viewModelScope.launch {
                                 toastShort("스케줄 저장중...")
@@ -100,13 +107,16 @@ class ScheduleViewModel : ViewModel() {
             }
         }
     }
+
     fun findAllSchedule() = viewModelScope.launch {
         withContext(ioDispatchers.coroutineContext) {
             repository.findAllSchedule().collectLatest {
+                logE("findAllSchedule 호출됨: ", it.toString())
                 _scheduleList.value = it
             }
         }
     }
+
     fun findScheduleByMonth(month: String) = viewModelScope.launch {
         withContext(ioDispatchers.coroutineContext) {
             repository.getScheduleMonth(month).collectLatest {
@@ -114,6 +124,7 @@ class ScheduleViewModel : ViewModel() {
             }
         }
     }
+
     fun updateSchedule(updatedSchedule: ScheduleInfo) {
         viewModelScope.launch {
             withContext(ioDispatchers.coroutineContext) {
@@ -126,6 +137,7 @@ class ScheduleViewModel : ViewModel() {
 
                             }
                         }
+
                         is ScheduleResult.Loading -> {
                             logE("스케줄 수정(로딩)", it.toString())
                         }
