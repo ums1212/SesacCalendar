@@ -16,6 +16,7 @@ import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.common.EnumAlarmTime
 import com.sesac.sesacscheduler.common.EnumColor
 import com.sesac.sesacscheduler.common.EnumRepeat
+import com.sesac.sesacscheduler.common.NO_SCHEDULE_ID
 import com.sesac.sesacscheduler.common.ScheduleResult
 import com.sesac.sesacscheduler.common.formatCurrentDate
 import com.sesac.sesacscheduler.common.formatCurrentTime
@@ -38,7 +39,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         scheduleViewModelFactory.create(ScheduleViewModel::class.java)
     }
 
-    private var scheduleId: Int? = null
+    private var scheduleId: Int = NO_SCHEDULE_ID
 
     private var repeatDays = EnumRepeat.NO.repeat
     private var appointmentAlarmTime = EnumAlarmTime.BEFORE_1_HOUR.time
@@ -57,7 +58,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         setupSpinnerAdapter()
         getCurrentDataAndTime()
 
-        if(scheduleId != 0) {
+        if(scheduleId != NO_SCHEDULE_ID) {
             logE("schedule이 null아님","$scheduleId")
             viewModel.getSchedule(scheduleId!!)
             observeSchedule()
@@ -205,7 +206,7 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                 appointmentAlarm, appointmentAlarmTime, color
             )
 
-            if (scheduleId != 0) {
+            if (scheduleId != NO_SCHEDULE_ID) {
                 viewModel.updateSchedule(schedule)
             } else {
                 viewModel.insertSchedule(schedule)

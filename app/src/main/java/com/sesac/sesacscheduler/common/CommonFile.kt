@@ -8,6 +8,7 @@ import java.util.Date
 import java.util.Locale
 
 const val MOCK_DELAY_TIME = 2000L
+const val NO_SCHEDULE_ID = 0
 
 fun toastShort(message: String){
     Toast.makeText(SchedulerApplication.getSchedulerApplication(), message, Toast.LENGTH_SHORT).show()
@@ -16,7 +17,7 @@ fun logE(tag: String, message: String) {
     Log.e(tag, message)
 }
 fun formatDate(year: Int, month: Int, dayOfMonth: Int): String = "$year-${String.format("%02d", month + 1)}-${String.format("%02d", dayOfMonth)}"
-fun formatTimeToString(hour: Int, minute: Int): String = "${hour}:${minute}"
+fun formatTimeToString(hour: Int, minute: Int): String = "${String.format("%02d", hour)}:${String.format("%02d", minute)}"
 fun formatCurrentDate(): String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
 fun formatCurrentTime(): String = SimpleDateFormat("hh:mm", Locale.getDefault()).format(Calendar.getInstance().time)
 fun getAlarmTime(date: String, time: String): Calendar {

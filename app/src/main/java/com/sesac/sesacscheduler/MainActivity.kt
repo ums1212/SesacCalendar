@@ -24,5 +24,4 @@ class MainActivity : AppCompatActivity() {
         }
         logE("mainActivity","onCreate")
     }
-
 }
