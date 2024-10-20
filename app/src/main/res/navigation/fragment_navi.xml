@@ -15,7 +15,8 @@
             app:destination="@id/scheduleListFragment" />
         <action
             android:id="@+id/action_mainFragment_to_addSchedulerFragment"
-            app:destination="@id/addSchedulerFragment" />
+            app:destination="@id/addSchedulerFragment" >
+        </action>
     </fragment>
     <fragment
         android:id="@+id/scheduleListFragment"
@@ -49,7 +50,6 @@
         <argument
             android:name="place"
             app:argType="string" />
-
     </fragment>
     <fragment
         android:id="@+id/searchLocationFragment"

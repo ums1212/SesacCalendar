@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
@@ -28,6 +29,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import com.google.android.gms.tasks.Task
 import android.location.Location
+import android.net.Uri
 import android.widget.RemoteViews
 import com.google.android.gms.location.Priority
 
@@ -38,31 +40,32 @@ class AlarmReceiver : BroadcastReceiver() {
         val scheduleId = intent.getIntExtra("scheduleId", -1)
         val scheduleTitle = intent.getStringExtra("scheduleTitle")
         val appointmentPlace = intent.getStringExtra("appointmentPlace")
-        val latitude = intent.getDoubleExtra("latitude", 0.0)
-        val longitude = intent.getDoubleExtra("longitude", 0.0)
+        val destinationLatitude = intent.getDoubleExtra("latitude", 0.0)
+        val destinationlongitude = intent.getDoubleExtra("longitude", 0.0)
 
         logE(
             "알람리시버 도착",
-            "id: $scheduleId, 제목: $scheduleTitle, 장소: $appointmentPlace, 위도: $latitude, 경도: $longitude"
+            "id: $scheduleId, 제목: $scheduleTitle, 장소: $appointmentPlace, 위도: $destinationLatitude, 경도: $destinationlongitude"
         )
 
         getCurrentLocation(context) { currentLatitude, currentLongitude ->
             logE("현재", "위도: $currentLatitude, 경도: $currentLongitude")
 
             CoroutineScope(Dispatchers.IO).launch {
-                if (latitude != 0.0) {
-                    logE("test","$latitude")
+                if (destinationLatitude != 0.0) {
+                    logE("test","$destinationLatitude")
                     showRouteNotification(
                         context,
-                        getWeatherInfo(latitude, longitude).await(),
-                        getTMapInfo(currentLatitude, currentLongitude, latitude, longitude).await(),
+                        getWeatherInfo(destinationLatitude, destinationlongitude).await(),
+                        getTMapInfo(currentLatitude, currentLongitude, destinationLatitude, destinationlongitude).await(),
                         scheduleTitle!!,
-                        appointmentPlace!!
+                        appointmentPlace!!,
+                                currentLatitude, currentLongitude, destinationLatitude, destinationlongitude
                     )
                 } else {
                     showNotification(
                         context,
-                        getWeatherInfo(latitude, longitude).await(),
+                        getWeatherInfo(destinationLatitude, destinationlongitude).await(),
                         scheduleTitle!!
                     )
                 }
@@ -79,7 +82,7 @@ class AlarmReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
         // 특정 intent로 가기 - tmap을 넣어볼까?
-//        val mainIntent = Intent(context, MainActivity::class.java)
+//        val mainIntent = Intent(context, AlarmReceiver::class.java)
 //        val pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val notification = NotificationCompat.Builder(context, channelId)
@@ -97,7 +100,8 @@ class AlarmReceiver : BroadcastReceiver() {
 
     }
 
-    private fun showRouteNotification(context: Context, weather: WeatherInfo, tmap: TMapInfo, title: String, place: String){
+    private fun showRouteNotification(context: Context, weather: WeatherInfo, tmap: TMapInfo, title: String, place: String
+    , currentLatitude: Double, currentLongitude: Double, destinationLatitude: Double, destinationLongitude: Double){
         val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         // Notification Channel 아이디, 이름, 설명, 중요도 설정
@@ -110,7 +114,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val notificationChannel = NotificationChannel(channelId, channelName, importance)
         // 설명 설정
         notificationChannel.description = channelDescription
-
         // 채널에 대한 각종 설정(불빛, 진동 등)
         notificationChannel.enableLights(true)
         notificationChannel.lightColor = Color.RED
@@ -118,6 +121,28 @@ class AlarmReceiver : BroadcastReceiver() {
         notificationChannel.vibrationPattern = longArrayOf(100L, 200L, 300L)
         // 시스템에 notificationChannel 등록
         notificationManager.createNotificationChannel(notificationChannel)
+
+        val tMapPackageName = "com.skt.tmap.ku"
+        // T맵이 설치되어 있는지 확인
+        val isTmapInstalled = try {
+            context.packageManager.getPackageInfo(tMapPackageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+
+        val tMapIntent = if(isTmapInstalled){
+            Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("tmap://route?goalname=약속장소&goalx=$destinationLongitude&goaly=$destinationLatitude&startx=$currentLongitude&starty=$currentLatitude")
+                `package` = tMapPackageName
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        } else {
+            Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$tMapPackageName"))
+        }
+
+        // PendingIntent 생성
+        val pendingIntent = PendingIntent.getActivity(context, 0, tMapIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val notificationCompatBuilder = NotificationCompat.Builder(context, channelId)
 
@@ -134,8 +159,6 @@ class AlarmReceiver : BroadcastReceiver() {
                                 "거리: ${tmap.distance}m"
                     )
                 }
-
-
             // 알림창 폈을 때
             val customExpandedNotificationView = RemoteViews("com.sesac.sesacscheduler", R.layout.notification_expanded)
                 .apply {
@@ -166,6 +189,16 @@ class AlarmReceiver : BroadcastReceiver() {
             it.setDefaults(Notification.DEFAULT_VIBRATE)
             // 클릭 시 알림이 삭제되도록 설정
             it.setAutoCancel(true)
+            it.setContentIntent(pendingIntent)
+//            if(tMapIntent.resolveActivity(context.packageManager)!=null){
+//                it.setContentIntent(pendingIntent)
+//            } else{
+//                val playStoreIntent = Intent(
+//                    Intent.ACTION_VIEW,
+//                    Uri.parse("market://details?id=com.skt.tmap.ku")
+//                )
+//                context.startActivity(playStoreIntent)
+//            }
         }
 
         val notification = notificationCompatBuilder.build()
