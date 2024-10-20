@@ -10,7 +10,6 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -29,6 +28,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import com.google.android.gms.tasks.Task
 import android.location.Location
+import android.widget.RemoteViews
 import com.google.android.gms.location.Priority
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -122,26 +122,46 @@ class AlarmReceiver : BroadcastReceiver() {
         val notificationCompatBuilder = NotificationCompat.Builder(context, channelId)
 
         notificationCompatBuilder.let {
+            // 알림창 접혔을 때
+            val customSmallNotificationView = RemoteViews("com.sesac.sesacscheduler", R.layout.notification_small)
+                .apply {
+                    setTextViewText(R.id.smallNotificationTitle, "일정")
+                    setTextViewText(
+                        R.id.smallNotificationInfo,
+                        "기온: ${weather.temperature}˚C " +
+                                "자동차: ${tmap.carTime/60}분 " +
+                                "도보: ${tmap.walkTime/60}분 " +
+                                "거리: ${tmap.distance}m"
+                    )
+                }
+
+
+            // 알림창 폈을 때
+            val customExpandedNotificationView = RemoteViews("com.sesac.sesacscheduler", R.layout.notification_expanded)
+                .apply {
+                    setTextViewText(R.id.textViewTemperature, "${weather.temperature}℃")
+                    setTextViewText(R.id.textViewCarDistance, "${tmap.distance}m")
+                    setTextViewText(R.id.textViewCarTime, "${tmap.carTime/60}분")
+                    setTextViewText(R.id.textViewWalkDistance, "${tmap.distance}m")
+                    setTextViewText(R.id.textViewWalkTime, "${tmap.walkTime/60}분")
+                    when(weather.sky){
+                        "1" -> setImageViewResource(R.id.skyImage, R.drawable.sky1)
+                        "3" -> setImageViewResource(R.id.skyImage, R.drawable.sky3)
+                        "4" -> setImageViewResource(R.id.skyImage, R.drawable.sky4)
+                    }
+                    setImageViewResource(R.id.carIcon, R.drawable.car_icon)
+                    setImageViewResource(R.id.walkIcon, R.drawable.walk_icon)
+                }
+
+            // 커스텀뷰 셋팅
+            it.setCustomContentView(customSmallNotificationView)
+            it.setCustomBigContentView(customExpandedNotificationView)
+            it.setCustomHeadsUpContentView(customSmallNotificationView)
             // 작은 아이콘 설정
-            it.setSmallIcon(android.R.drawable.ic_notification_overlay)
+            it.setSmallIcon(R.drawable.calendar_icon)
             // 시간 설정
             it.setWhen(System.currentTimeMillis())
-            // 알림 메시지 설정
-            it.setContentTitle("$title 일정이 있습니다.")
-            // 알림 내용 설정
-            it.setContentText(
-                "장소: $place\n" +
-                "기온: ${weather.temperature}\n" +
-                        "자동차: ${tmap.carTime} \n" +
-                        "도보: ${tmap.walkTime}\n" +
-                        "거리: ${tmap.distance}"
-            )
-            // 날씨 아이콘
-            when(weather.sky){
-                "1" -> it.setLargeIcon(Icon.createWithResource(context, R.drawable.sky1))
-                "3" -> it.setLargeIcon(Icon.createWithResource(context, R.drawable.sky3))
-                "4" -> it.setLargeIcon(Icon.createWithResource(context, R.drawable.sky4))
-            }
+
             // 알림과 동시에 진동 설정(권한 필요(
             it.setDefaults(Notification.DEFAULT_VIBRATE)
             // 클릭 시 알림이 삭제되도록 설정
@@ -151,6 +171,16 @@ class AlarmReceiver : BroadcastReceiver() {
         val notification = notificationCompatBuilder.build()
         // Notification 식별자 값, Notification 객체
         notificationManager.notify(0, notification)
+
+        // overlay 실행
+        Intent(context, AlarmOverlayService::class.java).also {
+            it.putExtra("weather", weather)
+            it.putExtra("tmap", tmap)
+            // ScheduleInfo를 전달하는게 나을 것 같음
+            it.putExtra("title", title)
+            it.putExtra("place", place)
+            context.startService(it)
+        }
     }
     private fun getCurrentLocation(context: Context, callback: (Double, Double) -> Unit) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)

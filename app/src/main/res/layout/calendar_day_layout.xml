@@ -26,5 +26,11 @@
             android:textSize="20sp"
             tools:text="22" />
 
+        <LinearLayout
+            android:id="@+id/insideScheduleLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"></LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

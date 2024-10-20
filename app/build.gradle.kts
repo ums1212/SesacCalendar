@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     id("androidx.navigation.safeargs")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -62,7 +63,6 @@ dependencies {
 
 
     implementation (libs.rxbinding)
-
 
     implementation(libs.bundles.flowbindings)
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
