@@ -44,6 +44,9 @@ class ScheduleViewModel : ViewModel() {
 
     private val ioDispatchers = CoroutineScope(Dispatchers.IO)
 
+    private var _scheduleComplete = MutableStateFlow(false)
+    val scheduleComplete get() = _scheduleComplete.asStateFlow()
+
     fun insertSchedule(newSchedule: ScheduleInfo) {
         viewModelScope.launch {
             withContext(ioDispatchers.coroutineContext) {
@@ -55,6 +58,7 @@ class ScheduleViewModel : ViewModel() {
                                 logE("스케줄 저장(성공)", it.toString())
                                 AlarmScheduler(SchedulerApplication.getSchedulerApplication(), AlarmUsecase(AlarmRepository(scheduleDAO)))
                                     .scheduleAlarmsForAppointments()
+                                _scheduleComplete.emit(true)
                             }
                         }
                         is ScheduleResult.Loading -> {

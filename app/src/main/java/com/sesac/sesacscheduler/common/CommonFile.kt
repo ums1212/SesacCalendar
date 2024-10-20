@@ -1,7 +1,22 @@
 package com.sesac.sesacscheduler.common
 
+import android.app.Activity
+import android.content.Context
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.sesac.sesacscheduler.R
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -49,3 +64,32 @@ fun getAlarmTime(date: String, time: String): Calendar {
     return calendar
 }
 
+fun getScheduleColorResource(color: Int)
+    = when(color){
+        EnumColor.RED.color -> R.color.sc_red
+        EnumColor.BLUE.color -> R.color.sc_blue
+        EnumColor.GRAY.color -> R.color.sc_gray
+        EnumColor.PINK.color -> R.color.sc_pink
+        EnumColor.GREEN.color -> R.color.sc_green
+        EnumColor.LIGHT_PURPLE.color -> R.color.sc_lightpurple
+        EnumColor.PURPLE.color -> R.color.sc_purple
+        EnumColor.RED_VIOLET.color -> R.color.sc_redviolet
+        EnumColor.SKY_BLUE.color -> R.color.sc_skyblue
+        EnumColor.YELLOW.color -> R.color.sc_yellow
+        else -> R.color.white
+    }
+
+fun <T> LifecycleOwner.collectWhenStarted(flow: StateFlow<T>, action: suspend (value: T) -> Unit) {
+    lifecycleScope.launch {
+        flow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect(action)
+    }
+}
+
+fun Activity.hideSoftInput() {
+    // 포커스 있는지 체크
+    window.currentFocus?.let { view ->
+        val inputMethodManager = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager // 키보드 관리 객체 가져옴
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0) // 키보드 내리기
+        view.clearFocus() // 포커스 제거
+    }
+}

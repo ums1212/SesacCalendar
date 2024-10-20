@@ -38,8 +38,9 @@ class AlarmScheduler(private val context: Context, private val alarmUsecase: Ala
             putExtra("latitude", schedule.latitude)
             putExtra("longitude", schedule.longitude)
         }
+        // 에러가 나서 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE 이걸로 수정함
         val pendingIntent = PendingIntent.getBroadcast(
-            context, schedule.id, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            context, schedule.id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         // 약속 시간 1시간 전에 알림을 설정으로 해야하는데 30초후에 울리게 설정
