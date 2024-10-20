@@ -43,7 +43,6 @@ class AlarmScheduler(private val context: Context, private val alarmUsecase: Ala
             context, schedule.id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 약속 시간 1시간 전에 알림을 설정으로 해야하는데 30초후에 울리게 설정
         val triggerTime = getAlarmTime(schedule.startDate,schedule.startTime)
         triggerTime.add(Calendar.SECOND, -50) //50초 전으로 설정
         logE("알람 시간", triggerTime.toString())
