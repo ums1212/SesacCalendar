@@ -11,14 +11,22 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
+import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.RemoteViews
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.Task
 import com.sesac.sesacscheduler.R
 import com.sesac.sesacscheduler.common.RetrofitManager
+import com.sesac.sesacscheduler.common.TMAP_MARKET_URL
+import com.sesac.sesacscheduler.common.TMAP_PACKAGE_NAME
+import com.sesac.sesacscheduler.common.TMAP_ROUTE_URL
 import com.sesac.sesacscheduler.common.logE
 import com.sesac.sesacscheduler.tmap.TMapInfo
 import com.sesac.sesacscheduler.weather.WeatherInfo
@@ -27,11 +35,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import com.google.android.gms.tasks.Task
-import android.location.Location
-import android.net.Uri
-import android.widget.RemoteViews
-import com.google.android.gms.location.Priority
 
 class AlarmReceiver : BroadcastReceiver() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -60,7 +63,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         getTMapInfo(currentLatitude, currentLongitude, destinationLatitude, destinationlongitude).await(),
                         scheduleTitle!!,
                         appointmentPlace!!,
-                                currentLatitude, currentLongitude, destinationLatitude, destinationlongitude
+                        currentLatitude, currentLongitude, destinationLatitude, destinationlongitude
                     )
                 } else {
                     showNotification(
@@ -87,10 +90,10 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle("일정 시간이 얼마 남지 않았어요!!!")
+            .setContentTitle("일정 알람 이지롱~")
             .setContentText(
-                "$title 일정이 있습니다!\n" +
-                "기온: ${weather.temperature}"
+                "일정: $title"
+//                + "기온: ${weather.temperature}"
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -122,10 +125,9 @@ class AlarmReceiver : BroadcastReceiver() {
         // 시스템에 notificationChannel 등록
         notificationManager.createNotificationChannel(notificationChannel)
 
-        val tMapPackageName = "com.skt.tmap.ku"
         // T맵이 설치되어 있는지 확인
         val isTmapInstalled = try {
-            context.packageManager.getPackageInfo(tMapPackageName, 0)
+            context.packageManager.getPackageInfo(TMAP_PACKAGE_NAME, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false
@@ -133,12 +135,12 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val tMapIntent = if(isTmapInstalled){
             Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("tmap://route?goalname=약속장소&goalx=$destinationLongitude&goaly=$destinationLatitude&startx=$currentLongitude&starty=$currentLatitude")
-                `package` = tMapPackageName
+                data = Uri.parse(String.format(TMAP_ROUTE_URL, place, destinationLongitude, destinationLatitude, currentLongitude, currentLatitude))
+                `package` = TMAP_PACKAGE_NAME
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
         } else {
-            Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$tMapPackageName"))
+            Intent(Intent.ACTION_VIEW, Uri.parse(String.format(TMAP_MARKET_URL, TMAP_ROUTE_URL)))
         }
 
         // PendingIntent 생성

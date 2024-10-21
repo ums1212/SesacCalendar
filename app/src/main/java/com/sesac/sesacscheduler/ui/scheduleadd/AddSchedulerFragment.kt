@@ -2,12 +2,17 @@ package com.sesac.sesacscheduler.ui.scheduleadd
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -29,6 +34,7 @@ import com.sesac.sesacscheduler.factory.scheduleViewModelFactory
 import com.sesac.sesacscheduler.model.ScheduleInfo
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 import com.sesac.sesacscheduler.viewmodel.ScheduleViewModel
+import com.sesac.sesacscheduler.viewmodel.TemporaryViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -37,6 +43,10 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
 
     private val viewModel by lazy {
         scheduleViewModelFactory.create(ScheduleViewModel::class.java)
+    }
+    //2가지 방법으로
+    private val tmpViewModel by viewModels<TemporaryViewModel> {
+        scheduleViewModelFactory
     }
 
     private var scheduleId: Int = NO_SCHEDULE_ID
@@ -51,12 +61,11 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         findNavController()
     }
 
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Bundle에서 scheduleId 가져오기
-        arguments?.let {
-            scheduleId = it.getInt("scheduleId")
-        }
+
         logE("AddSchedulerFragment","onViewCreated시작")
         setupArgument()
         setupSpinnerAdapter()
@@ -64,17 +73,63 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
 
         if(scheduleId != NO_SCHEDULE_ID) {
             logE("schedule이 null아님","$scheduleId")
-            viewModel.getSchedule(scheduleId!!)
+            viewModel.getSchedule(scheduleId)
             observeSchedule()
             binding.tvDelete.visibility = View.VISIBLE
         }
         setupUI()
     }
+
+    private fun restoreDataFromSavedState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                logE("restoreDataFromSavedState","${tmpViewModel.getSavedData()}")
+                tmpViewModel.title.observe(viewLifecycleOwner) { title ->
+                    binding.etTitle.setText(title)
+                }
+                tmpViewModel.startDate.observe(viewLifecycleOwner) { startDate ->
+                    binding.tvStartDate.text = startDate
+                }
+                tmpViewModel.lastDate.observe(viewLifecycleOwner) { lastDate ->
+                    binding.tvLastDate.text = lastDate
+                }
+                tmpViewModel.startTime.observe(viewLifecycleOwner) { startTime ->
+                    binding.tvStartTime.text = startTime
+                }
+                tmpViewModel.endTime.observe(viewLifecycleOwner) { endTime ->
+                    binding.tvEndTime.text = endTime
+                }
+                tmpViewModel.chooseRepeat.observe(viewLifecycleOwner) { chooseRepeat ->
+                    binding.spinnerRepeat.setSelection(chooseRepeat ?: 0)
+                }
+                tmpViewModel.alarmState.observe(viewLifecycleOwner) { alarmState ->
+                    binding.switchAppointmentAlarm.isChecked = alarmState ?: false
+                }
+            }
+        }
+//        val savedData = viewModel.getSavedData()
+//        with(binding) {
+//            etTitle.setText(savedData["title"])
+//            tvStartDate.text = savedData["startDate"]
+//            tvLastDate.text = savedData["lastDate"]
+//            tvStartTime.text = savedData["startTime"]
+//            tvEndTime.text = savedData["endTime"]
+//
+//            val chooseRepeat = savedData["chooseRepeat"] as? Int ?: 0
+//            spinnerRepeat.setSelection(chooseRepeat) //
+//
+//            val alarmState = savedData["alarmState"] as? Boolean ?: false
+//            switchAppointmentAlarm.isChecked = alarmState
+//            logE("restoreData형식","$savedData")
+//        }
+    }
     private fun setupArgument(){
         arguments?.let {
+            logE("setupArgument","${it.toString()}")
             latitude = it.getString("latitude")?.toDoubleOrNull() ?: 0.0
             longitude = it.getString("longitude")?.toDoubleOrNull() ?: 0.0
             binding.tvAppointmentPlace.text = it.getString("place") ?: "약속 장소"
+            restoreDataFromSavedState()
             scheduleId = it.getInt("scheduleId")
         }
     }
@@ -115,8 +170,8 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
             tvAppointmentPlace.text = it.appointmentPlace
             switchAppointmentAlarm.isChecked = it.appointmentAlarm
             spinnerAlarm.setSelection(it.appointmentAlarmTime)
-            iconColor.setColorFilter(ContextCompat.getColor(requireContext(), it.color))
-            color = it.color
+//            iconColor.setColorFilter(ContextCompat.getColor(requireContext(), it.color))
+//            color = it.color
         }
     }
     private fun setupUI() {
@@ -214,7 +269,6 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
                 viewModel.updateSchedule(schedule)
             } else {
                 viewModel.insertSchedule(schedule)
-                navController.popBackStack() // 일정 저장 후 뒤로 이동
             }
         }
     }
@@ -277,6 +331,18 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
     override fun onPause() {
         super.onPause()
         logE("AddSchedulerFragment","onPause시작")
+        with(binding) {
+            tmpViewModel.saveData(
+                etTitle.text.toString(),
+                tvStartDate.text.toString(),
+                tvLastDate.text.toString(),
+                tvStartTime.text.toString(),
+                tvEndTime.text.toString(),
+                spinnerRepeat.selectedItemPosition,
+                switchAppointmentAlarm.isChecked,
+            )
+            logE("pause에서 뷰모델에 저장?","${tmpViewModel.getSavedData()}")
+        }
     }
 
     override fun onStop() {
@@ -284,4 +350,13 @@ class AddSchedulerFragment : BaseFragment<FragmentAddSchedulerBinding>(FragmentA
         logE("AddSchedulerFragment","onStop시작")
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        logE("AddSchedulerFragment","onDestroyView시작")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        logE("AddSchedulerFragment","onDestroy시작")
+    }
 }

@@ -4,9 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import com.sesac.sesacscheduler.alarm.AlarmScheduler
 import com.sesac.sesacscheduler.alarm.repository.AlarmRepository
 import com.sesac.sesacscheduler.alarm.usecase.AlarmUsecase
+import com.sesac.sesacscheduler.common.EnumAlarmTime
+import com.sesac.sesacscheduler.common.EnumColor
+import com.sesac.sesacscheduler.common.EnumRepeat
 import com.sesac.sesacscheduler.common.ScheduleResult
 import com.sesac.sesacscheduler.common.SchedulerApplication
 import com.sesac.sesacscheduler.common.logE
@@ -24,7 +28,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ScheduleViewModel : ViewModel() {
+class ScheduleViewModel(
+) : ViewModel() {
+    //    // 스피너, 스위치 상태 저장
+
 
     private val database =
         ScheduleRoomDatabase.getDatabase(SchedulerApplication.getSchedulerApplication())
