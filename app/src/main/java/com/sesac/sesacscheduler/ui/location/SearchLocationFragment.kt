@@ -6,11 +6,13 @@ import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sesac.sesacscheduler.R
+import com.sesac.sesacscheduler.common.logE
 import com.sesac.sesacscheduler.common.toastShort
 import com.sesac.sesacscheduler.databinding.FragmentSearchLocationBinding
 import com.sesac.sesacscheduler.ui.common.BaseFragment
 import com.sesac.sesacscheduler.ui.location.manager.RetrofitInstance
 import com.sesac.sesacscheduler.ui.location.model.TmapResponse
+import com.sesac.sesacscheduler.viewmodel.TemporaryViewModel
 import retrofit2.Call
 import retrofit2.Response
 
@@ -23,6 +25,7 @@ class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(Fragm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        logE("searchLocationFragment-onViewCreated","${TemporaryViewModel().getSavedData()}")
         with(binding){
             recyclerViewPoi.layoutManager = LinearLayoutManager(requireContext())
             val searchAdapter = SearchAdapter { selectedPlace ->
@@ -30,6 +33,7 @@ class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(Fragm
                 val latitude = selectedPlace.noorLat
                 val longitude = selectedPlace.noorLon
                 toastShort("장소: $place, 경도: $longitude, 위도: $latitude")
+                logE("searchLocationFragment-before-bundle","${TemporaryViewModel().getSavedData()}")
                 val bundle = bundleOf("latitude" to latitude, "longitude" to longitude, "place" to place)
                 navController.navigate(R.id.action_searchLocationFragment_to_addSchedulerFragment,bundle)
             }
@@ -39,6 +43,7 @@ class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(Fragm
                 val place = keywordET.text.toString()
                 if(place.isNotEmpty()){
                     searchPlaces(place,searchAdapter)
+                    logE("searchLocationFragment-click","${TemporaryViewModel().getSavedData()}")
                 } else {
                     keywordET.requestFocus()
                     toastShort("검색어를 입력해주세요.")
@@ -53,6 +58,7 @@ class SearchLocationFragment : BaseFragment<FragmentSearchLocationBinding>(Fragm
             override fun onResponse(call: Call<TmapResponse>, response: Response<TmapResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     adapter.submitList(response.body()!!.searchPoiInfo.pois.poi)
+                    logE("searchLocationFragment-list","${TemporaryViewModel().getSavedData()}")
                 }
             }
             override fun onFailure(call: Call<TmapResponse>, t: Throwable) {
